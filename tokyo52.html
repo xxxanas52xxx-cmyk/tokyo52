@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOKYO 52</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Cairo:wght@300;400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+:root{--bg:#050508;--bg2:#0a0e17;--card:#0c1018;--txt:#c9d1d9;--txtb:#e6edf3;--txtm:#484f58;--acc:#00ff41;--acc2:#00cc33;--put:#ff3366;--brd:#151d2b;--r:8px;--fl:'Orbitron',monospace;--fa:'Cairo',sans-serif;--fm:'Share Tech Mono',monospace}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--fa);background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--acc2);border-radius:3px}
+#mc{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.3}
+.app{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
+header{background:linear-gradient(180deg,rgba(10,14,23,.97),rgba(5,5,8,.95));border-bottom:1px solid var(--brd);padding:12px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;position:sticky;top:0;z-index:100}
+.logo{font-family:var(--fl);font-weight:900;font-size:1.5rem;color:var(--acc);text-shadow:0 0 20px rgba(0,255,65,.5);letter-spacing:3px}
+.sdot{width:10px;height:10px;border-radius:50%;background:#ff3366;transition:.3s}.sdot.on{background:var(--acc);box-shadow:0 0 8px rgba(0,255,65,.6);animation:pd 2s infinite}
+@keyframes pd{0%,100%{box-shadow:0 0 8px rgba(0,255,65,.6)}50%{box-shadow:0 0 16px rgba(0,255,65,.9)}}
+.hi{margin-right:auto;display:flex;gap:16px;font-size:.8rem;color:var(--txtm);align-items:center}.hi i{color:var(--acc);margin-left:4px}
+.ab{font-size:.7rem;padding:2px 10px;border-radius:10px;font-weight:700;letter-spacing:1px}
+.ab.d{background:rgba(255,193,7,.12);color:#ffc107;border:1px solid rgba(255,193,7,.3)}
+.ab.r{background:rgba(0,255,65,.12);color:var(--acc);border:1px solid rgba(0,255,65,.3)}
+.ctrl{background:var(--bg2);border-bottom:1px solid var(--brd);padding:10px 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.btn{font-family:var(--fa);font-weight:600;font-size:.82rem;padding:8px 18px;border:1px solid var(--brd);border-radius:var(--r);cursor:pointer;transition:.25s;display:inline-flex;align-items:center;gap:6px;outline:none}
+.bs{background:rgba(0,255,65,.1);border-color:var(--acc2);color:var(--acc)}.bs:hover{background:rgba(0,255,65,.22)}
+.bx{background:rgba(255,51,102,.08);border-color:#cc2952;color:var(--put)}.bx:hover{background:rgba(255,51,102,.18)}
+.bc{background:var(--card);color:var(--txt);border-color:var(--brd)}.bc:hover{border-color:var(--acc2);color:var(--acc)}
+.tw{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--txtm)}
+.tg{width:44px;height:24px;background:#1a1f2e;border-radius:12px;position:relative;cursor:pointer;transition:.3s;border:1px solid var(--brd)}
+.tg.on{background:rgba(0,255,65,.2);border-color:var(--acc2)}
+.tg::after{content:'';position:absolute;top:3px;right:3px;width:16px;height:16px;background:#555;border-radius:50%;transition:.3s}
+.tg.on::after{right:23px;background:var(--acc);box-shadow:0 0 8px rgba(0,255,65,.5)}
+.ai{width:80px;background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:6px 10px;color:var(--txtb);font-family:var(--fm);font-size:.85rem;text-align:center;outline:none;direction:ltr}
+.sep{width:1px;height:28px;background:var(--brd);margin:0 4px}
+.sts{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;padding:14px 24px}
+.sc{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:12px 16px}
+.sl{font-size:.72rem;color:var(--txtm);display:flex;align-items:center;gap:5px}.sl i{color:var(--acc);font-size:.7rem}
+.sv{font-family:var(--fm);font-size:1.3rem;font-weight:700;color:var(--txtb)}.sv.g{color:var(--acc)}
+.mn{display:grid;grid-template-columns:280px 1fr;gap:0;flex:1;overflow:hidden}
+.ap{background:var(--bg2);border-left:1px solid var(--brd);overflow-y:auto;max-height:calc(100vh - 180px);padding:8px 0}
+.ch{display:flex;align-items:center;gap:8px;padding:10px 16px;cursor:pointer;font-weight:700;font-size:.85rem;color:var(--txtb);border-bottom:1px solid var(--brd);user-select:none}
+.ch:hover{background:rgba(0,255,65,.05)}.ch i.ar{margin-right:auto;transition:.3s;font-size:.65rem;color:var(--txtm)}.ch.op i.ar{transform:rotate(90deg)}
+.ci{max-height:0;overflow:hidden;transition:max-height .35s}.ci.op{max-height:2000px}
+.ai2{display:flex;align-items:center;gap:8px;padding:6px 16px 6px 24px;font-size:.8rem;cursor:pointer;transition:.15s;color:var(--txtm)}
+.ai2:hover{background:rgba(0,255,65,.04);color:var(--txt)}
+.ai2 input[type=checkbox]{appearance:none;width:16px;height:16px;border:1px solid var(--brd);border-radius:3px;cursor:pointer;flex-shrink:0;transition:.2s}
+.ai2 input[type=checkbox]:checked{background:var(--acc);border-color:var(--acc)}
+.sf{overflow-y:auto;max-height:calc(100vh - 180px);padding:16px 20px}
+.card{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:16px;margin-bottom:12px;animation:ci2 .4s ease-out}
+.card.cal{border-right:3px solid var(--acc)}.card.put{border-right:3px solid var(--put)}
+@keyframes ci2{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.ct{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.cn{font-weight:700;font-size:1rem;color:var(--txtb)}
+.badge{font-family:var(--fm);font-weight:700;font-size:.75rem;padding:3px 12px;border-radius:4px;letter-spacing:1px}
+.badge.cal{background:rgba(0,255,65,.12);color:var(--acc);border:1px solid rgba(0,255,65,.3)}
+.badge.put{background:rgba(255,51,102,.1);color:var(--put);border:1px solid rgba(255,51,102,.25)}
+.cf{font-family:var(--fm);font-weight:700;font-size:1.1rem;margin-right:auto}
+.cf.hi2{color:var(--acc)}.cf.mi{color:#f0ad4e}.cf.lo{color:var(--put)}
+.cbar{height:4px;background:var(--bg);border-radius:2px;margin-bottom:12px;overflow:hidden}
+.cfill{height:100%;border-radius:2px;transition:width .6s}.cfill.hi2{background:linear-gradient(90deg,var(--acc2),var(--acc))}.cfill.mi{background:linear-gradient(90deg,#e0a800,#f0ad4e)}.cfill.lo{background:linear-gradient(90deg,#cc2952,var(--put))}
+.gr{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;margin-bottom:10px;font-size:.78rem}
+.gl{color:var(--txtm)}.gv{color:var(--txtb);font-family:var(--fm);direction:ltr;text-align:left}
+.ex{display:flex;align-items:center;gap:8px;font-size:.78rem;padding:8px 12px;border-radius:var(--r);background:var(--bg)}
+.ex.ok{color:var(--acc)}.ex.run{color:#17a2b8}.ex.fail{color:var(--put)}.ex.only{color:var(--txtm)}
+.tc{position:fixed;top:80px;left:20px;z-index:200;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.tt{pointer-events:auto;background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:10px 16px;display:flex;align-items:center;gap:10px;font-size:.82rem;box-shadow:0 8px 24px rgba(0,0,0,.5);animation:ti .35s ease;min-width:240px}
+@keyframes ti{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes to2{to{opacity:0;transform:translateX(-30px)}}
+.debug{position:fixed;bottom:10px;right:10px;background:var(--card);border:1px solid var(--brd);padding:8px 12px;font-size:.7rem;color:var(--txtm);border-radius:var(--r);font-family:var(--fm);max-width:300px;max-height:100px;overflow-y:auto;z-index:50}
+@media(max-width:900px){.mn{grid-template-columns:1fr}.ap{position:fixed;top:0;right:-300px;width:280px;height:100vh;z-index:200;transition:.3s}.ap.op2{right:0}.mt{display:flex!important}.hi{display:none}}
+.mt{display:none;position:fixed;bottom:20px;left:20px;z-index:150;width:48px;height:48px;border-radius:50%;background:var(--acc);color:#000;border:none;font-size:1.2rem;cursor:pointer;box-shadow:0 4px 16px rgba(0,255,65,.3);align-items:center;justify-content:center}
+</style>
+</head>
+<body>
+<canvas id="mc"></canvas>
+<div class="app">
+<header>
+  <div class="logo">TOKYO 52</div>
+  <div style="display:flex;align-items:center;gap:8px;font-size:.85rem"><div class="sdot" id="dot"></div><span id="stxt">غير متصل</span></div>
+  <span class="ab d" id="abdg">DEMO</span>
+  <div class="hi"><span><i class="fas fa-clock"></i> <span id="clk">--:--:--</span></span><span><i class="fas fa-wallet"></i> <span id="bal">---</span></span></div>
+</header>
+<div class="ctrl">
+  <button class="btn bs" onclick="startScan()"><i class="fas fa-play"></i> تشغيل</button>
+  <button class="btn bx" onclick="stopScan()"><i class="fas fa-stop"></i> إيقاف</button>
+  <div class="sep"></div>
+  <div class="tw">تداول تلقائي<div class="tg" id="atTg" onclick="togAT()"></div></div>
+  <label style="font-size:.78rem;color:var(--txtm);display:flex;align-items:center;gap:4px">المبلغ: <input type="number" class="ai" id="amt" value="1" min="1" step="1"></label>
+  <div class="sep"></div>
+  <div class="tw">حساب حقيقي<div class="tg" id="acTg" onclick="togAC()"></div></div>
+  <div class="sep"></div>
+  <button class="btn bc" onclick="selAll()"><i class="fas fa-check-double"></i> تحديد الكل</button>
+  <button class="btn bc" onclick="clrSig()"><i class="fas fa-trash-alt"></i> مسح</button>
+</div>
+<div class="sts">
+  <div class="sc"><div class="sl"><i class="fas fa-signal"></i> الإشارات</div><div class="sv" id="s1">0</div></div>
+  <div class="sc"><div class="sl"><i class="fas fa-fire"></i> قوية</div><div class="sv g" id="s2">0</div></div>
+  <div class="sc"><div class="sl"><i class="fas fa-bolt"></i> صفقات</div><div class="sv" id="s3">0</div></div>
+  <div class="sc"><div class="sl"><i class="fas fa-chart-line"></i> CALL/PUT</div><div class="sv" id="s4">0/0</div></div>
+</div>
+<div class="mn">
+  <aside class="ap" id="apanel"><div id="ac"></div></aside>
+  <section class="sf">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><h2 style="font-size:1rem;font-weight:700;color:var(--txtb)"><i class="fas fa-satellite-dish" style="color:var(--acc);margin-left:8px"></i>لوحة الإشارات</h2><span style="font-size:.75rem;color:var(--txtm)" id="fc">0</span></div>
+    <div id="cards"><div style="text-align:center;padding:60px 20px;color:var(--txtm)"><i class="fas fa-satellite-dish" style="font-size:3rem;display:block;margin-bottom:12px;opacity:.3"></i><p>اضغط تشغيل لبدء التحليل</p></div></div>
+  </section>
+</div>
+</div>
+<div class="tc" id="tc"></div>
+<div class="debug" id="dbg" style="display:none"></div>
+<button class="mt" onclick="document.getElementById('apanel').classList.toggle('op2')"><i class="fas fa-list"></i></button>
+
+<script>
+// ═══ إعدادات API ═══
+var API = '';
+var DEBUG_MODE = false; // غيّر إلى true للتصحيح
+
+function logDebug(msg) {
+  if (!DEBUG_MODE) return;
+  console.log('[DEBUG]', msg);
+  var dbg = document.getElementById('dbg');
+  dbg.style.display = 'block';
+  dbg.textContent += msg + '\n';
+  dbg.scrollTop = dbg.scrollHeight;
+}
+
+// ═══ الحالة العامة ═══
+var S = {conn:false, scanning:false, at:false, sigs:{}, sel:{}, real:false, si:null, lastError:null};
+
+// ═══ قاموس الأصول ═══
+var AD = {
+  currencies:{l:'العملات OTC',i:'fa-coins',it:[{id:'EURUSD_otc',n:'EUR/USD'},{id:'GBPUSD_otc',n:'GBP/USD'},{id:'USDJPY_otc',n:'USD/JPY'},{id:'USDCHF_otc',n:'USD/CHF'},{id:'USDCAD_otc',n:'USD/CAD'},{id:'AUDUSD_otc',n:'AUD/USD'},{id:'NZDUSD_otc',n:'NZD/USD'},{id:'EURGBP_otc',n:'EUR/GBP'},{id:'EURJPY_otc',n:'EUR/JPY'},{id:'GBPJPY_otc',n:'GBP/JPY'},{id:'AUDJPY_otc',n:'AUD/JPY'},{id:'NZDJPY_otc',n:'NZD/JPY'},{id:'EURAUD_otc',n:'EUR/AUD'},{id:'EURCHF_otc',n:'EUR/CHF'},{id:'GBPCHF_otc',n:'GBP/CHF'},{id:'AUDCHF_otc',n:'AUD/CHF'},{id:'AUDCAD_otc',n:'AUD/CAD'},{id:'AUDNZD_otc',n:'AUD/NZD'},{id:'GBPAUD_otc',n:'GBP/AUD'},{id:'GBPNZD_otc',n:'GBP/NZD'},{id:'NZDCAD_otc',n:'NZD/CAD'},{id:'NZDCHF_otc',n:'NZD/CHF'},{id:'EURCAD_otc',n:'EUR/CAD'},{id:'CADJPY_otc',n:'CAD/JPY'},{id:'CADCHF_otc',n:'CAD/CHF'},{id:'CHFJPY_otc',n:'CHF/JPY'},{id:'EURNZD_otc',n:'EUR/NZD'},{id:'USDARS_otc',n:'USD/ARS'},{id:'USDBRL_otc',n:'USD/BRL'},{id:'USDINR_otc',n:'USD/INR'},{id:'USDMXN_otc',n:'USD/MXN'},{id:'USDZAR_otc',n:'USD/ZAR'},{id:'USDBDT_otc',n:'USD/BDT'},{id:'USDPHP_otc',n:'USD/PHP'},{id:'USDIDR_otc',n:'USD/IDR'},{id:'USDCOP_otc',n:'USD/COP'},{id:'USDEGP_otc',n:'USD/EGP'},{id:'USDDZD_otc',n:'USD/DZD'},{id:'USDPKR_otc',n:'USD/PKR'},{id:'USDNGN_otc',n:'USD/NGN'}]},
+  commodities:{l:'السلع OTC',i:'fa-gem',it:[{id:'XAUUSD_otc',n:'Gold'},{id:'XAGUSD_otc',n:'Silver'},{id:'USOIL_otc',n:'USCrude'},{id:'UKOIL_otc',n:'UKBrent'}]},
+  crypto:{l:'الرقمي OTC',i:'fa-bitcoin-sign',it:[{id:'BTCUSD_otc',n:'Bitcoin'},{id:'ETHUSD_otc',n:'Ethereum'},{id:'LTCUSD_otc',n:'Litecoin'},{id:'BCHUSD_otc',n:'BitcoinCash'},{id:'XRPUSD_otc',n:'Ripple'},{id:'DASHUSD_otc',n:'Dash'},{id:'ZECUSD_otc',n:'Zcash'},{id:'BNBUSD_otc',n:'BNB'},{id:'SOLUSD_otc',n:'Solana'},{id:'AVAXUSD_otc',n:'Avalanche'},{id:'LINKUSD_otc',n:'Chainlink'},{id:'DOTUSD_otc',n:'Polkadot'},{id:'ATOMUSD_otc',n:'Cosmos'},{id:'TONUSD_otc',n:'Toncoin'},{id:'AXSUSD_otc',n:'Axie'},{id:'TRUMPUSD_otc',n:'Trump'}]},
+  stocks:{l:'الأسهم OTC',i:'fa-building',it:[{id:'MSFT_otc',n:'Microsoft'},{id:'BA_otc',n:'Boeing'},{id:'META_otc',n:'Facebook'},{id:'PFE_otc',n:'Pfizer'},{id:'JNJ_otc',n:'J&J'},{id:'AXP_otc',n:'AmExpress'},{id:'INTC_otc',n:'Intel'},{id:'MCD_otc',n:"McDonald's"}]}
+};
+
+function buildA() {
+  var c = document.getElementById('ac'), h = '';
+  for (var k in AD) {
+    var cat = AD[k];
+    h += '<div class="ch op" onclick="this.classList.toggle(\'op\');this.nextElementSibling.classList.toggle(\'op\')"><i class="fas ' + cat.i + '" style="color:var(--acc);width:16px"></i>' + cat.l + '<i class="fas fa-chevron-left ar"></i></div><div class="ci op">';
+    for (var j = 0; j < cat.it.length; j++) {
+      var item = cat.it[j];
+      h += '<label class="ai2"><input type="checkbox" value="' + item.id + '" onchange="if(this.checked)S.sel[this.value]=1;else delete S.sel[this.value]">' + item.n + '</label>';
+    }
+    h += '</div>';
+  }
+  c.innerHTML = h;
+}
+
+// ═══ Matrix Rain ═══
+(function() {
+  var c = document.getElementById('mc'), x = c.getContext('2d');
+  function r() { c.width = innerWidth; c.height = innerHeight; }
+  r(); addEventListener('resize', r);
+  var ch = 'アイウ0123456789ABCDEF', fs = 14, cols, drops;
+  function init() { cols = Math.floor(c.width / fs); drops = []; for (var i = 0; i < cols; i++) drops[i] = Math.random() * c.height / fs | 0; }
+  init();
+  function draw() {
+    x.fillStyle = 'rgba(5,5,8,0.06)'; x.fillRect(0, 0, c.width, c.height);
+    x.font = fs + 'px monospace';
+    for (var i = 0; i < drops.length; i++) {
+      x.fillStyle = 'rgba(0,255,65,' + (Math.random() * 0.2 + 0.08) + ')';
+      x.fillText(ch[Math.random() * ch.length | 0], i * fs, drops[i] * fs);
+      if (drops[i] * fs > c.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ═══ الساعة ═══
+setInterval(function() { document.getElementById('clk').textContent = new Date().toLocaleTimeString('ar-EG', {hour12: false}); }, 1000);
+
+// ═══ API محسّنة مع معالجة أخطاء ═══
+function apiGet(path) {
+  return new Promise(function(resolve) {
+    var xhr = new XMLHttpRequest();
+    var url = API + path;
+    logDebug('GET ' + path + ' from ' + url);
+    xhr.open('GET', url, true);
+    xhr.timeout = 8000;
+    xhr.withCredentials = false;
+    
+    xhr.onload = function() {
+      logDebug('Response ' + xhr.status + ' for ' + path);
+      try {
+        if (xhr.status === 200 || xhr.status === 0) {
+          var data = JSON.parse(xhr.responseText);
+          resolve(data);
+        } else {
+          logDebug('Bad status: ' + xhr.status);
+          resolve(null);
+        }
+      }
+      catch(e) {
+        logDebug('Parse error: ' + e.message);
+        resolve(null);
+      }
+    };
+    
+    xhr.onerror = function() {
+      logDebug('Network error for ' + path);
+      resolve(null);
+    };
+    
+    xhr.ontimeout = function() {
+      logDebug('Timeout for ' + path);
+      resolve(null);
+    };
+    
+    xhr.send();
+  });
+}
+
+function apiPost(path, body) {
+  return new Promise(function(resolve) {
+    var xhr = new XMLHttpRequest();
+    var url = API + path;
+    logDebug('POST ' + path + ' to ' + url);
+    xhr.open('POST', url, true);
+    xhr.timeout = 8000;
+    xhr.withCredentials = false;
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    
+    xhr.onload = function() {
+      logDebug('Response ' + xhr.status + ' for ' + path);
+      try {
+        if (xhr.status === 200 || xhr.status === 0) {
+          var data = JSON.parse(xhr.responseText);
+          resolve(data);
+        } else {
+          resolve(null);
+        }
+      }
+      catch(e) {
+        logDebug('Parse error: ' + e.message);
+        resolve(null);
+      }
+    };
+    
+    xhr.onerror = function() {
+      logDebug('Network error for ' + path);
+      resolve(null);
+    };
+    
+    xhr.ontimeout = function() {
+      logDebug('Timeout for ' + path);
+      resolve(null);
+    };
+    
+    xhr.send(JSON.stringify(body));
+  });
+}
+
+// ═══ حالة الاتصال ═══
+function setC(c) {
+  S.conn = c;
+  var d = document.getElementById('dot'), t = document.getElementById('stxt');
+  if (c) {
+    d.classList.add('on');
+    t.textContent = 'متصل';
+  }
+  else {
+    d.classList.remove('on');
+    t.textContent = 'غير متصل';
+  }
+}
+
+function pollSt() {
+  apiGet('/status').then(function(d) {
+    logDebug('Status response: ' + (d ? 'OK' : 'NULL'));
+    if (!d) {
+      setC(false);
+      return;
+    }
+    setC(d.connected === true);
+    if (d.balance) document.getElementById('bal').textContent = '$' + d.balance;
+    var ir = (d.account_type === 'REAL');
+    S.real = ir;
+    var b = document.getElementById('abdg');
+    b.className = 'ab ' + (ir ? 'r' : 'd');
+    b.textContent = ir ? 'REAL' : 'DEMO';
+    document.getElementById('acTg').classList.toggle('on', ir);
+  });
+}
+
+// ═══ الأزرار ═══
+function startScan() {
+  var assets = Object.keys(S.sel);
+  if (assets.length === 0) {
+    toast('حدد أصولاً أولاً');
+    return;
+  }
+  S.scanning = true;
+  logDebug('Starting scan with ' + assets.length + ' assets');
+  apiPost('/start', {assets: assets, auto_trade: S.at, amount: parseFloat(document.getElementById('amt').value) || 1}).then(function(r) {
+    logDebug('Start response: ' + (r ? 'OK' : 'NULL'));
+  });
+  S.si = setInterval(pollSig, 3000);
+  pollSig();
+  toast('بدأ المسح...');
+}
+
+function stopScan() {
+  S.scanning = false;
+  if (S.si) {
+    clearInterval(S.si);
+    S.si = null;
+  }
+  logDebug('Stopping scan');
+  apiPost('/stop', {});
+  toast('تم الإيقاف');
+}
+
+function togAT() {
+  S.at = !S.at;
+  document.getElementById('atTg').classList.toggle('on', S.at);
+  apiPost('/auto_trade', {enabled: S.at});
+  toast(S.at ? 'التداول التلقائي: مفعّل' : 'التداول التلقائي: معطّل');
+}
+
+function togAC() {
+  var wR = !S.real, t = wR ? 'REAL' : 'PRACTICE';
+  apiPost('/switch_account', {type: t}).then(function(r) {
+    if (r && r.success) {
+      S.real = wR;
+      toast(r.message);
+    }
+    else {
+      toast('فشل التبديل');
+      document.getElementById('acTg').classList.toggle('on', S.real);
+    }
+  });
+}
+
+function selAll() {
+  document.querySelectorAll('.ai2 input').forEach(function(cb) {
+    cb.checked = true;
+    S.sel[cb.value] = 1;
+  });
+  toast('تم تحديد الكل');
+}
+
+function clrSig() {
+  S.sigs = {};
+  document.getElementById('cards').innerHTML = '<div style="text-align:center;padding:40px;color:var(--txtm)"><p>تم المسح</p></div>';
+  updSt();
+}
+
+// ═══ جلب الإشارات ═══
+function pollSig() {
+  if (!S.scanning) return;
+  apiGet('/signals').then(function(d) {
+    logDebug('Signals response: ' + (d ? 'OK, count=' + (d.signals ? d.signals.length : 0) : 'NULL'));
+    if (!d || !d.signals) return;
+    var ns = [];
+    for (var i = 0; i < d.signals.length; i++) {
+      var s = d.signals[i];
+      if (s.has_signal) {
+        if (!S.sigs[s.asset]) ns.push(s);
+        S.sigs[s.asset] = s;
+      }
+    }
+    render();
+    updSt();
+    for (var j = 0; j < ns.length; j++) toast(ns[j]);
+  });
+}
+
+// ═══ عرض الإشارات ═══
+function render() {
+  var c = document.getElementById('cards');
+  var arr = [];
+  for (var k in S.sigs) arr.push(S.sigs[k]);
+  arr.sort(function(a, b) {
+    return (b.score || 0) - (a.score || 0);
+  });
+  document.getElementById('fc').textContent = arr.length + ' إشارة';
+  if (!arr.length) {
+    c.innerHTML = '<div style="text-align:center;padding:40px;color:var(--txtm)"><p>لا إشارات</p></div>';
+    return;
+  }
+  var h = '';
+  for (var i = 0; i < arr.length; i++) {
+    var s = arr[i];
+    var ic = s.signal === 'call';
+    var cc = s.score >= 75 ? 'hi2' : s.score >= 60 ? 'mi' : 'lo';
+    var ex = s.trade_status || 'signal_only';
+    var eh = '';
+    if (ex === 'executed') eh = '<div class="ex ok"><i class="fas fa-check-circle"></i> تم التنفيذ</div>';
+    else if (ex === 'executing') eh = '<div class="ex run"><i class="fas fa-spinner fa-spin"></i> جاري</div>';
+    else if (ex === 'failed') eh = '<div class="ex fail"><i class="fas fa-times-circle"></i> فشل</div>';
+    else eh = '<div class="ex only"><i class="fas fa-info-circle"></i> إشارة فقط</div>';
+    var rh = '';
+    if (s.reasons && s.reasons.length) {
+      rh = '<div style="margin-bottom:8px">';
+      for (var r = 0; r < Math.min(s.reasons.length, 4); r++)
+        rh += '<div style="font-size:.75rem;color:var(--txt);padding-right:12px"><span style="color:var(--acc)">✓</span> ' + s.reasons[r] + '</div>';
+      rh += '</div>';
+    }
+    h += '<div class="card ' + (ic ? 'cal' : 'put') + '"><div class="ct"><span class="cn">' + (s.asset_name || s.asset) + '</span><span class="badge ' + (ic ? 'cal' : 'put') + '">' + (ic ? 'CALL' : 'PUT') + '</span><span class="cf ' + cc + '">' + s.score + '%</span></div><div class="cbar"><div class="cfill ' + cc + '" style="width:' + Math.min(100, s.score) + '%"></div></div><div class="gr"><div><span class="gl">الانتهاء:</span> <span class="gv">' + (s.expiry_minutes || 2) + ' د</span></div><div><span class="gl">الدخول:</span> <span class="gv">' + (s.entry_method || 'انتظار') + '</span></div><div><span class="gl">السعر:</span> <span class="gv">' + (s.last_price || '---') + '</span></div><div><span class="gl">النوع:</span> <span class="gv">' + (s.entry_type || '---') + '</span></div></div>' + rh + eh + '</div>';
+  }
+  c.innerHTML = h;
+}
+
+function updSt() {
+  var a = [];
+  for (var k in S.sigs) a.push(S.sigs[k]);
+  document.getElementById('s1').textContent = a.length;
+  document.getElementById('s2').textContent = a.filter(function(s) {
+    return (s.score || 0) >= 75;
+  }).length;
+  document.getElementById('s3').textContent = a.filter(function(s) {
+    return s.trade_status === 'executed';
+  }).length;
+  document.getElementById('s4').textContent = a.filter(function(s) {
+    return s.signal === 'call';
+  }).length + '/' + a.filter(function(s) {
+    return s.signal === 'put';
+  }).length;
+}
+
+function toast(sig) {
+  var c = document.getElementById('tc'), t = document.createElement('div');
+  t.className = 'tt';
+  if (typeof sig === 'string') {
+    t.innerHTML = '<span style="color:var(--txtb)">' + sig + '</span>';
+  } else {
+    var s = sig, ic = s.signal === 'call';
+    t.innerHTML = '<span class="badge ' + (ic ? 'cal' : 'put') + '" style="font-size:.7rem">' + (ic ? 'CALL' : 'PUT') + '</span><div><div style="font-weight:700;color:var(--txtb)">' + (s.asset_name || s.asset) + '</div><div style="font-family:var(--fm);font-size:.72rem;color:var(--txtm)">' + s.score + '%</div></div>';
+  }
+  c.appendChild(t);
+  setTimeout(function() {
+    t.style.animation = 'to2 .3s ease forwards';
+    setTimeout(function() {
+      t.remove();
+    }, 300);
+  }, 3500);
+}
+
+// ═══ التشغيل الأولي ═══
+buildA();
+logDebug('Page loaded. API base: "' + API + '"');
+logDebug('Polling status...');
+pollSt();
+setInterval(pollSt, 5000);
+setTimeout(selAll, 100);
+</script>
+</body>
+</html>

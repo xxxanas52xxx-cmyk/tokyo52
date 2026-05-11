@@ -1,0 +1,9 @@
+{
+  "build": {
+    "builder": "NIXPACKS"
+  },
+  "deploy": {
+    "startCommand": "python bot_macd_FIXED.py",
+    "restartPolicyType": "ON_FAILURE"
+  }
+}

@@ -1,2 +1,2 @@
 numpy
-pyquotex
+git+https://github.com/cleitonleonel/pyquotex.git

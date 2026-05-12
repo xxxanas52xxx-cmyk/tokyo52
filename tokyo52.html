@@ -65,7 +65,6 @@ header{background:linear-gradient(180deg,rgba(10,14,23,.97),rgba(5,5,8,.95));bor
 .tt{pointer-events:auto;background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:10px 16px;display:flex;align-items:center;gap:10px;font-size:.82rem;box-shadow:0 8px 24px rgba(0,0,0,.5);animation:ti .35s ease;min-width:240px}
 @keyframes ti{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
 @keyframes to2{to{opacity:0;transform:translateX(-30px)}}
-
 .modal-bg{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px)}
 .modal{background:var(--bg2);border:1px solid var(--acc2);border-radius:var(--r);padding:30px;width:90%;max-width:400px;box-shadow:0 0 30px rgba(0,255,65,.1)}
 .modal h2{text-align:center;color:var(--acc);font-family:var(--fl);margin-bottom:20px;font-size:1.2rem}
@@ -81,7 +80,6 @@ header{background:linear-gradient(180deg,rgba(10,14,23,.97),rgba(5,5,8,.95));bor
 .tabs{display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--brd);padding-bottom:8px}
 .tab-btn{background:transparent;border:none;color:var(--txtm);font-family:var(--fa);font-size:.9rem;font-weight:700;cursor:pointer;padding:8px 16px;transition:.2s}
 .tab-btn.active{color:var(--acc);border-bottom:2px solid var(--acc);background:rgba(0,255,65,.05)}
-
 @media(max-width:900px){.mn{grid-template-columns:1fr}.ap{position:fixed;top:0;right:-300px;width:280px;height:100vh;z-index:200;transition:.3s}.ap.op2{right:0}.mt{display:flex!important}.hi{display:none}}
 .mt{display:none;position:fixed;bottom:20px;left:20px;z-index:150;width:48px;height:48px;border-radius:50%;background:var(--acc);color:#000;border:none;font-size:1.2rem;cursor:pointer;box-shadow:0 4px 16px rgba(0,255,65,.3);align-items:center;justify-content:center}
 </style>
@@ -165,11 +163,10 @@ header{background:linear-gradient(180deg,rgba(10,14,23,.97),rgba(5,5,8,.95));bor
 <button class="mt" onclick="document.getElementById('apanel').classList.toggle('op2')"><i class="fas fa-list"></i></button>
 
 <script>
-var API = ''; // يأخذ الرابط تلقائياً من نفس الدومين
+var API = ''; // يربط الموقع بالبوت تلقائياً
 var ADMIN_EMAIL = 'x52anasx@gmail.com';
 var currentUser = null;
 
-// ═══ نظام التنبيهات (Toast) ═══
 function toast(msg) {
   var c = document.getElementById('tc'), t = document.createElement('div');
   t.className = 'tt';
@@ -178,228 +175,101 @@ function toast(msg) {
   setTimeout(function() { t.style.animation = 'to2 .3s ease forwards'; setTimeout(function() { t.remove(); }, 300); }, 3500);
 }
 
-// ═══ نظام المصداقية ═══
 function toggleAuth() {
-  var l = document.getElementById('loginForm');
-  var r = document.getElementById('regForm');
-  var t = document.getElementById('authTitle');
-  if (l.style.display === 'none') {
-    l.style.display = 'block'; r.style.display = 'none'; t.textContent = 'تسجيل الدخول';
-  } else {
-    l.style.display = 'none'; r.style.display = 'block'; t.textContent = 'تسجيل جديد';
-  }
+  var l = document.getElementById('loginForm'), r = document.getElementById('regForm'), t = document.getElementById('authTitle');
+  if (l.style.display === 'none') { l.style.display = 'block'; r.style.display = 'none'; t.textContent = 'تسجيل الدخول'; } 
+  else { l.style.display = 'none'; r.style.display = 'block'; t.textContent = 'تسجيل جديد'; }
 }
 
 function login() {
-  var email = document.getElementById('loginEmail').value;
-  var pass = document.getElementById('loginPass').value;
+  var email = document.getElementById('loginEmail').value, pass = document.getElementById('loginPass').value;
   if(!email || !pass) { toast('الرجاء إدخال البيانات'); return; }
-  
   toast('جاري التحقق...');
-  
-  fetch(API + '/login', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({email: email, password: pass})
-  })
-  .then(r => r.json())
-  .then(data => {
-    if(data.success) {
-      currentUser = {email: data.email, role: data.role, fname: data.fname};
-      localStorage.setItem('tokyo52user', JSON.stringify(currentUser));
-      initUI();
-      toast('مرحباً بك، ' + data.fname);
-    } else {
-      toast(data.message || 'خطأ في تسجيل الدخول');
-    }
-  })
-  .catch(err => { toast('خطأ في الاتصال بالسيرفر'); console.error(err); });
+  fetch(API + '/login', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({email: email, password: pass}) })
+  .then(r => r.json()).then(data => {
+    if(data.success) { currentUser = {email: data.email, role: data.role, fname: data.fname}; localStorage.setItem('tokyo52user', JSON.stringify(currentUser)); initUI(); toast('مرحباً بك، ' + data.fname); } 
+    else { toast(data.message || 'خطأ في تسجيل الدخول'); }
+  }).catch(() => toast('خطأ في الاتصال بالسيرفر'));
 }
 
 function register() {
-  var email = document.getElementById('regEmail').value;
-  var pass = document.getElementById('regPass').value;
-  var fname = document.getElementById('regFname').value;
-  var lname = document.getElementById('regLname').value;
+  var email = document.getElementById('regEmail').value, pass = document.getElementById('regPass').value, fname = document.getElementById('regFname').value, lname = document.getElementById('regLname').value;
   if(!email || !pass || !fname || !lname) { toast('الرجاء إكمال البيانات'); return; }
-  
-  toast('جاري إرسال الطلب...');
-  
-  fetch(API + '/register', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({email: email, password: pass, fname: fname, lname: lname})
-  })
-  .then(r => r.json())
-  .then(data => {
-    if(data.success) {
-      toast(data.message);
-      toggleAuth();
-    } else {
-      toast(data.message || 'خطأ في التسجيل');
-    }
-  })
-  .catch(err => { toast('خطأ في الاتصال'); console.error(err); });
+  fetch(API + '/register', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({email: email, password: pass, fname: fname, lname: lname}) })
+  .then(r => r.json()).then(data => { if(data.success) { toast(data.message); toggleAuth(); } else { toast(data.message || 'خطأ'); } }).catch(() => toast('خطأ في الاتصال'));
 }
 
-function logout() {
-  localStorage.removeItem('tokyo52user');
-  currentUser = null;
-  document.getElementById('mainApp').style.display = 'none';
-  document.getElementById('authModal').style.display = 'flex';
-}
+function logout() { localStorage.removeItem('tokyo52user'); currentUser = null; document.getElementById('mainApp').style.display = 'none'; document.getElementById('authModal').style.display = 'flex'; }
 
 function initUI() {
   if(!currentUser) return;
-  if(currentUser.role === 'pending') { toast('حسابك قيد المراجعة'); return; }
-  
   document.getElementById('authModal').style.display = 'none';
   document.getElementById('mainApp').style.display = 'flex';
-  
-  if(currentUser.role === 'admin') {
-    document.getElementById('adminCtrl').style.display = 'flex';
-    document.getElementById('adminBadge').style.display = 'inline-block';
-  } else {
-    document.getElementById('adminCtrl').style.display = 'none';
-    document.getElementById('adminBadge').style.display = 'none';
-  }
+  if(currentUser.role === 'admin') { document.getElementById('adminCtrl').style.display = 'flex'; document.getElementById('adminBadge').style.display = 'inline-block'; } 
+  else { document.getElementById('adminCtrl').style.display = 'none'; document.getElementById('adminBadge').style.display = 'none'; }
 }
 
-// ═══ التبويبات ═══
 function switchTab(tab) {
-  var btns = document.querySelectorAll('.tab-btn');
-  btns.forEach(b => b.classList.remove('active'));
-  event.target.closest('.tab-btn').classList.add('active');
-  document.getElementById('liveTab').style.display = tab === 'live' ? 'block' : 'none';
-  document.getElementById('lstTab').style.display = tab === 'lst' ? 'block' : 'none';
+  var btns = document.querySelectorAll('.tab-btn'); btns.forEach(b => b.classList.remove('active')); event.target.closest('.tab-btn').classList.add('active');
+  document.getElementById('liveTab').style.display = tab === 'live' ? 'block' : 'none'; document.getElementById('lstTab').style.display = tab === 'lst' ? 'block' : 'none';
 }
 
-// ═══ الحالة العامة ═══
 var S = {conn:false, scanning:false, at:false, sigs:{}, lstSigs:[], sel:{}, real:false, si:null};
 
-// ═══ قاموس الأصول ═══
 var AD = {
-  currencies:{l:'العملات',i:'fa-coins',it:[{id:'EURUSD_otc',n:'EUR/USD'},{id:'GBPUSD_otc',n:'GBP/USD'},{id:'USDJPY_otc',n:'USD/JPY'},{id:'USDMXN_otc',n:'USD/MXN'}]},
-  commodities:{l:'السلع',i:'fa-gem',it:[{id:'XAUUSD_otc',n:'Gold'},{id:'XAGUSD_otc',n:'Silver'}]},
-  crypto:{l:'الرقمي',i:'fa-bitcoin-sign',it:[{id:'BTCUSD_otc',n:'Bitcoin'},{id:'ETHUSD_otc',n:'Ethereum'}]},
-  stocks:{l:'الأسهم',i:'fa-building',it:[{id:'MSFT_otc',n:'Microsoft'},{id:'META_otc',n:'Facebook'}]}
+  currencies:{l:'العملات',i:'fa-coins',it:[{id:'EURUSD_otc',n:'EUR/USD'},{id:'GBPUSD_otc',n:'GBP/USD'},{id:'USDJPY_otc',n:'USD/JPY'},{id:'USDMXN_otc',n:'USD/MXN'},{id:'USDZAR_otc',n:'USD/ZAR'}]},
+  commodities:{l:'السلع',i:'fa-gem',it:[{id:'XAUUSD_otc',n:'Gold'},{id:'XAGUSD_otc',n:'Silver'},{id:'USOIL_otc',n:'USCrude'}]},
+  crypto:{l:'الرقمي',i:'fa-bitcoin-sign',it:[{id:'BTCUSD_otc',n:'Bitcoin'},{id:'ETHUSD_otc',n:'Ethereum'},{id:'SOLUSD_otc',n:'Solana'}]},
+  stocks:{l:'الأسهم',i:'fa-building',it:[{id:'MSFT_otc',n:'Microsoft'},{id:'META_otc',n:'Facebook'},{id:'TSLA_otc',n:'Tesla'}]}
 };
 
 function buildA() {
   var c = document.getElementById('ac'), h = '';
-  for (var k in AD) {
-    var cat = AD[k];
-    h += '<div class="ch op" onclick="this.classList.toggle(\'op\');this.nextElementSibling.classList.toggle(\'op\')"><i class="fas ' + cat.i + '" style="color:var(--acc);width:16px"></i>' + cat.l + '<i class="fas fa-chevron-left ar"></i></div><div class="ci op">';
-    for (var j = 0; j < cat.it.length; j++) {
-      var item = cat.it[j];
-      h += '<label class="ai2"><input type="checkbox" value="' + item.id + '" onchange="if(this.checked)S.sel[this.value]=1;else delete S.sel[this.value]">' + item.n + '</label>';
-    }
-    h += '</div>';
-  }
+  for (var k in AD) { var cat = AD[k]; h += '<div class="ch op" onclick="this.classList.toggle(\'op\');this.nextElementSibling.classList.toggle(\'op\')"><i class="fas ' + cat.i + '" style="color:var(--acc);width:16px"></i>' + cat.l + '<i class="fas fa-chevron-left ar"></i></div><div class="ci op">'; for (var j = 0; j < cat.it.length; j++) { var item = cat.it[j]; h += '<label class="ai2"><input type="checkbox" value="' + item.id + '" onchange="if(this.checked)S.sel[this.value]=1;else delete S.sel[this.value]">' + item.n + '</label>'; } h += '</div>'; }
   c.innerHTML = h;
 }
 
-// ═══ Matrix Rain ═══
-(function() {
-  var c = document.getElementById('mc'), x = c.getContext('2d');
-  function r() { c.width = innerWidth; c.height = innerHeight; }
-  r(); addEventListener('resize', r);
-  var ch = 'アイウ0123456789ABCDEF', fs = 14, cols, drops;
-  function init() { cols = Math.floor(c.width / fs); drops = []; for (var i = 0; i < cols; i++) drops[i] = Math.random() * c.height / fs | 0; }
-  init();
-  function draw() {
-    x.fillStyle = 'rgba(5,5,8,0.06)'; x.fillRect(0, 0, c.width, c.height);
-    x.font = fs + 'px monospace';
-    for (var i = 0; i < drops.length; i++) {
-      x.fillStyle = 'rgba(0,255,65,' + (Math.random() * 0.2 + 0.08) + ')';
-      x.fillText(ch[Math.random() * ch.length | 0], i * fs, drops[i] * fs);
-      if (drops[i] * fs > c.height && Math.random() > 0.975) drops[i] = 0;
-      drops[i]++;
-    }
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
-
-// ═══ الساعة ═══
+(function() { var c = document.getElementById('mc'), x = c.getContext('2d'); function r() { c.width = innerWidth; c.height = innerHeight; } r(); addEventListener('resize', r); var ch = 'TOKYO52', fs = 14, cols, drops; function init() { cols = Math.floor(c.width / fs); drops = []; for (var i = 0; i < cols; i++) drops[i] = Math.random() * c.height / fs | 0; } init(); function draw() { x.fillStyle = 'rgba(5,5,8,0.06)'; x.fillRect(0, 0, c.width, c.height); x.font = fs + 'px monospace'; for (var i = 0; i < drops.length; i++) { x.fillStyle = 'rgba(0,255,65,' + (Math.random() * 0.2 + 0.08) + ')'; x.fillText(ch[Math.random() * ch.length | 0], i * fs, drops[i] * fs); if (drops[i] * fs > c.height && Math.random() > 0.975) drops[i] = 0; drops[i]++; } requestAnimationFrame(draw); } draw(); })();
 setInterval(function() { document.getElementById('clk').textContent = new Date().toLocaleTimeString('ar-EG', {hour12: false}); }, 1000);
 
-// ═══ أزرار التحكم ═══
-function startScan() { S.scanning = true; S.si = setInterval(pollSig, 2000); pollSig(); toast('بدأ المسح...'); }
+function startScan() { S.scanning = true; S.si = setInterval(pollSig, 3000); pollSig(); toast('بدأ المسح...'); }
 function stopScan() { S.scanning = false; if (S.si) { clearInterval(S.si); S.si = null; } toast('تم الإيقاف'); }
 function togAT() { S.at = !S.at; document.getElementById('atTg').classList.toggle('on', S.at); toast(S.at ? 'تداول تلقائي: مفعّل' : 'تداول تلقائي: معطّل'); }
 function togAC() { S.real = !S.real; document.getElementById('acTg').classList.toggle('on', S.real); var b = document.getElementById('abdg'); b.className = 'ab ' + (S.real ? 'r' : 'd'); b.textContent = S.real ? 'REAL' : 'DEMO'; }
 function selAll() { document.querySelectorAll('.ai2 input').forEach(function(cb) { cb.checked = true; S.sel[cb.value] = 1; }); toast('تم تحديد الكل'); }
 function clrSig() { S.sigs = {}; render(); }
 
-// ═══ جلب الإشارات (محاكاة مؤقتة) ═══
+function pollSt() {
+  fetch(API + '/status').then(r => r.json()).then(d => {
+    var dot = document.getElementById('dot'), stxt = document.getElementById('stxt'), balEl = document.getElementById('bal');
+    if (d.connected === true) { dot.classList.add('on'); stxt.textContent = 'متصل'; } else { dot.classList.remove('on'); stxt.textContent = 'غير متصل'; }
+    if (d.balance) { balEl.textContent = '$' + d.balance; }
+  }).catch(() => { document.getElementById('dot').classList.remove('on'); document.getElementById('stxt').textContent = 'خطأ اتصال'; });
+}
+
 function pollSig() {
-  if(Math.random() > 0.7) {
-     var dummyAsset = ['EURUSD_otc', 'GBPUSD_otc', 'Gold_otc', 'BTCUSD_otc'][Math.floor(Math.random()*4)];
-     var dummyDir = Math.random() > 0.5 ? 'call' : 'put';
-     var dummyScore = Math.floor(Math.random() * 30) + 70;
-     S.sigs[dummyAsset] = {
-       asset: dummyAsset, asset_name: dummyAsset.replace('_otc',''), signal: dummyDir, score: dummyScore,
-       expiry_minutes: 2, entry_time: new Date().toLocaleTimeString('ar-EG', {hour12:false}),
-       exit_time: new Date(Date.now() + 120000).toLocaleTimeString('ar-EG', {hour12:false}),
-       payout: (Math.random()*5+80).toFixed(1), pips_diff: (Math.random()*3).toFixed(2),
-       profit: dummyDir === 'call' ? '+' + (10 * parseFloat((Math.random()*5+80).toFixed(1))/100).toFixed(2) + '$' : '-10$'
-     };
-     if(dummyScore > 85) {
-       S.lstSigs.push({...S.sigs[dummyAsset], is_lst: true, entry_time: new Date(Date.now() + 300000).toLocaleTimeString('ar-EG', {hour12:false})});
-     }
-  }
-  render();
-  renderLst();
+  if (!S.scanning) return;
+  fetch(API + '/signals').then(r => r.json()).then(data => {
+    if (data.signals) { S.sigs = {}; data.signals.forEach(sig => { if(sig.direction) { S.sigs[sig.asset] = { asset: sig.asset, asset_name: sig.asset_name || sig.asset.replace('_otc',''), signal: sig.direction, score: sig.confidence, expiry_minutes: sig.expiry, entry_time: sig.time, exit_time: '---', payout: '---', pips_diff: '---', profit: 'جاري التنفيذ' }; } }); render(); }
+  }).catch(err => console.error(err));
+  fetch(API + '/get_pending_signals').then(r => r.json()).then(data => { if (data.lst_signals && data.lst_signals.length > 0) { S.lstSigs = data.lst_signals; renderLst(); } }).catch(err => console.error(err));
 }
 
-// ═══ عرض الإشارات المباشرة ═══
 function render() {
-  var c = document.getElementById('cards');
-  var arr = [];
-  for (var k in S.sigs) arr.push(S.sigs[k]);
-  arr.sort(function(a, b) { return (b.score || 0) - (a.score || 0); });
-
-  if (!arr.length) {
-    c.innerHTML = '<div style="text-align:center;padding:40px;color:var(--txtm)"><p>لا إشارات حالياً</p></div>';
-    return;
-  }
+  var c = document.getElementById('cards'), arr = []; for (var k in S.sigs) arr.push(S.sigs[k]); arr.sort(function(a, b) { return (b.score || 0) - (a.score || 0); });
+  if (!arr.length) { c.innerHTML = '<div style="text-align:center;padding:40px;color:var(--txtm)"><p>لا إشارات حالياً</p></div>'; return; }
   var h = '';
-  for (var i = 0; i < arr.length; i++) {
-    var s = arr[i];
-    var ic = s.signal === 'call';
-    var cc = s.score >= 80 ? 'hi2' : s.score >= 65 ? 'mi' : 'lo';
-    
-    h += '<div class="card ' + (ic ? 'cal' : 'put') + '"><div class="ct"><span class="cn">' + (s.asset_name || s.asset) + '</span><span class="badge ' + (ic ? 'cal' : 'put') + '">' + (ic ? 'CALL ▲' : 'PUT ▼') + '</span><span class="cf ' + cc + '">' + s.score + '%</span></div><div class="cbar"><div class="cfill ' + cc + '" style="width:' + Math.min(100, s.score) + '%"></div></div><div class="gr"><div><span class="gl">⏱ الدخول:</span> <span class="gv">' + (s.entry_time || '---') + '</span></div><div><span class="gl">🏁 الخروج:</span> <span class="gv">' + (s.exit_time || '---') + '</span></div><div><span class="gl">⏳ المدة:</span> <span class="gv">' + (s.expiry_minutes || 2) + ' د</span></div><div><span class="gl">💰 العائد:</span> <span class="gv" style="color:var(--acc)">' + (s.payout || '0') + '%</span></div><div><span class="gl">📊 الفارق:</span> <span class="gv">' + (s.pips_diff || '0') + ' نقطة</span></div><div><span class="gl">💵 النتيجة:</span> <span class="gv">' + (s.profit || 'بانتظار') + '</span></div></div></div>';
-  }
+  for (var i = 0; i < arr.length; i++) { var s = arr[i], ic = s.signal === 'call', cc = s.score >= 80 ? 'hi2' : s.score >= 65 ? 'mi' : 'lo'; h += '<div class="card ' + (ic ? 'cal' : 'put') + '"><div class="ct"><span class="cn">' + s.asset_name + '</span><span class="badge ' + (ic ? 'cal' : 'put') + '">' + (ic ? 'CALL ▲' : 'PUT ▼') + '</span><span class="cf ' + cc + '">' + s.score + '%</span></div><div class="cbar"><div class="cfill ' + cc + '" style="width:' + Math.min(100, s.score) + '%"></div></div><div class="gr"><div><span class="gl">⏱ الدخول:</span> <span class="gv">' + s.entry_time + '</span></div><div><span class="gl">⏳ المدة:</span> <span class="gv">' + s.expiry_minutes + ' د</span></div><div><span class="gl">💵 النتيجة:</span> <span class="gv">' + s.profit + '</span></div></div></div>'; }
   c.innerHTML = h;
 }
 
-// ═══ عرض إشارات اللستات ═══
 function renderLst() {
-  var c = document.getElementById('lstCards');
-  if (!S.lstSigs.length) {
-    c.innerHTML = '<div style="text-align:center;padding:40px;color:var(--txtm)"><p>لا توجد لستات قادمة حالياً</p></div>';
-    return;
-  }
-  var h = '';
-  for (var i = 0; i < S.lstSigs.length; i++) {
-    var s = S.lstSigs[i];
-    var ic = s.signal === 'call';
-    h += '<div class="card" style="border-right:3px solid #17a2b8"><div class="ct"><span class="cn" style="color:#17a2b8"><i class="fas fa-forward"></i> ' + (s.asset_name || s.asset) + '</span><span class="badge ' + (ic ? 'cal' : 'put') + '">' + (ic ? 'CALL' : 'PUT') + '</span><span class="cf hi2">' + s.score + '%</span></div><div class="gr"><div><span class="gl">⏱ وقت الدخول المتوقع:</span> <span class="gv" style="color:#17a2b8">' + s.entry_time + '</span></div></div></div>';
-  }
+  var c = document.getElementById('lstCards'); if (!S.lstSigs.length) { c.innerHTML = '<div style="text-align:center;padding:40px;color:var(--txtm)"><p>لا لستات حالياً</p></div>'; return; }
+  var h = ''; for (var i = 0; i < S.lstSigs.length; i++) { var s = S.lstSigs[i], ic = s.direction === 'call'; h += '<div class="card" style="border-right:3px solid #17a2b8"><div class="ct"><span class="cn" style="color:#17a2b8"><i class="fas fa-forward"></i> ' + s.asset + '</span><span class="badge ' + (ic ? 'cal' : 'put') + '">' + (ic ? 'CALL' : 'PUT') + '</span><span class="cf hi2">' + s.confidence + '%</span></div><div class="gr"><div><span class="gl">⏱ التوقع:</span> <span class="gv" style="color:#17a2b8">' + s.time + '</span></div></div></div>'; }
   c.innerHTML = h;
 }
 
-// ═══ التشغيل الأولي ═══
-window.onload = function() {
-  buildA();
-  var saved = localStorage.getItem('tokyo52user');
-  if(saved) {
-    currentUser = JSON.parse(saved);
-    initUI();
-  }
-};
+window.onload = function() { buildA(); var saved = localStorage.getItem('tokyo52user'); if(saved) { currentUser = JSON.parse(saved); initUI(); } setInterval(pollSt, 3000); pollSt(); };
 </script>
 </body>
 </html>

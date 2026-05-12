@@ -359,8 +359,11 @@ if __name__ == "__main__":
     threading.Thread(target=lambda: asyncio.run(bot_loop()), daemon=True).start()
     time.sleep(3)
     
+    # تعديل البورت ليتوافق مع Railway
+    port = int(os.environ.get("PORT", 8080))
+    
     try:
-        srv = HTTPServer(("0.0.0.0", 8765), Handler)
-        print("✅ سيرفر الموقع يعمل على البورت 8765")
+        srv = HTTPServer(("0.0.0.0", port), Handler)
+        print(f"✅ سيرفر الموقع يعمل على البورت {port}")
         srv.serve_forever()
     except KeyboardInterrupt: print("\n⛔ إيقاف")

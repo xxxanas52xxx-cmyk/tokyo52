@@ -190,7 +190,6 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         path = self.path.split("?")[0]
         
-        # عرض الموقع الرئيسي
         if path == "/" or path == "/tokyo52.html":
             try:
                 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -201,10 +200,9 @@ class Handler(BaseHTTPRequestHandler):
                 self.cors(); self.send_header("Content-Length", len(content)); self.end_headers()
                 self.wfile.write(content)
             except Exception as e:
-                self.reply({"error": "HTML file not found: " + str(e)}, 404)
+                self.reply({"error": "HTML file not found"}, 404)
             return
             
-        # مسارات API
         if path == "/status": self.reply(bot_state)
         elif path == "/assets": self.reply({"assets": ASSETS})
         elif path == "/signals": self.reply({"signals": list(signals_db.values())})
@@ -215,7 +213,10 @@ class Handler(BaseHTTPRequestHandler):
         path = self.path.split("?")[0]
         content_length = int(self.headers.get('Content-Length', 0))
         post_data = self.rfile.read(content_length).decode('utf-8') if content_length else "{}"
-        data = json.loads(post_data)
+        try:
+            data = json.loads(post_data)
+        except:
+            data = {}
         
         if path == "/login":
             email = data.get("email", "")
@@ -242,13 +243,15 @@ class Handler(BaseHTTPRequestHandler):
         else: self.reply({"error": "Not found"}, 404)
 
     def reply(self, data, code=200):
-        body = json.dumps(data, ensure_ascii=False).encode("utf-8")
-        self.send_response(code)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.cors()
-        self.send_header("Content-Length", len(body))
-        self.end_headers()
-        self.wfile.write(body)
+        try:
+            body = json.dumps(data, ensure_ascii=False).encode("utf-8")
+            self.send_response(code)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.cors()
+            self.send_header("Content-Length", len(body))
+            self.end_headers()
+            self.wfile.write(body)
+        except: pass
 
 # ==========================================
 # حلقة البوت الرئيسية
@@ -265,13 +268,13 @@ async def bot_loop():
                 bot_state["balance"] = await client.get_balance()
                 await client.change_account(bot_state["account_type"])
             except: pass
-            print("✅ اتصال طوكيو 52 ناجح!")
+            print("✅ اتصال طوكيو 52 ناجح!", flush=True)
         else:
             bot_state["connected"] = False
-            print(f"❌ فشل الاتصال: {reason}")
+            print(f"❌ فشل الاتصال: {reason}", flush=True)
     except Exception as e:
         bot_state["connected"] = False
-        print(f"❌ خطأ في الاتصال: {e}")
+        print(f"❌ خطأ في الاتصال: {e}", flush=True)
 
     while True:
         try:
@@ -312,16 +315,21 @@ async def bot_loop():
         except: await asyncio.sleep(10)
 
 if __name__ == "__main__":
-    print("=" * 58)
-    print("  ⚡ طوكيو 52 - المحرك الجبارة (Tokyo 52 Engine)")
-    print("=" * 58)
+    print("=" * 58, flush=True)
+    print("  ⚡ طوكيو 52 - المحرك الجبارة (Tokyo 52 Engine)", flush=True)
+    print("=" * 58, flush=True)
     
+    # تشغيل البوت في الخلفية فوراً
     threading.Thread(target=lambda: asyncio.run(bot_loop()), daemon=True).start()
-    time.sleep(3)
     
-    port = int(os.environ.get("PORT", 8080))
+    # قراءة البورت بطريقة آمنة جداً
+    port_str = os.environ.get("PORT", "8080")
+    port = int(port_str) if port_str.isdigit() else 8080
+    
+    # تشغيل السيرفر فوراً بدون أي تأخير
     try:
         srv = HTTPServer(("0.0.0.0", port), Handler)
-        print(f"✅ سيرفر الموقع يعمل على البورت {port}")
+        print(f"✅ سيرفر الموقع يعمل على البورت {port}", flush=True)
         srv.serve_forever()
-    except KeyboardInterrupt: print("\n⛔ إيقاف")
+    except Exception as e:
+        print(f"❌ فشل تشغيل السيرفر: {e}", flush=True)

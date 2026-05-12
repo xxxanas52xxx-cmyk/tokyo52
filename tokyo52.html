@@ -61,18 +61,12 @@ header{background:linear-gradient(180deg,rgba(10,14,23,.97),rgba(5,5,8,.95));bor
 .cfill{height:100%;border-radius:2px;transition:width .6s}.cfill.hi2{background:linear-gradient(90deg,var(--acc2),var(--acc))}.cfill.mi{background:linear-gradient(90deg,#e0a800,#f0ad4e)}.cfill.lo{background:linear-gradient(90deg,#cc2952,var(--put))}
 .gr{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;margin-bottom:10px;font-size:.78rem}
 .gl{color:var(--txtm)}.gv{color:var(--txtb);font-family:var(--fm);direction:ltr;text-align:left}
-.ex{display:flex;align-items:center;gap:8px;font-size:.78rem;padding:8px 12px;border-radius:var(--r);background:var(--bg)}
-.ex.ok{color:var(--acc)}.ex.run{color:#17a2b8}.ex.fail{color:var(--put)}.ex.only{color:var(--txtm)}
 .tc{position:fixed;top:80px;left:20px;z-index:200;display:flex;flex-direction:column;gap:8px;pointer-events:none}
 .tt{pointer-events:auto;background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:10px 16px;display:flex;align-items:center;gap:10px;font-size:.82rem;box-shadow:0 8px 24px rgba(0,0,0,.5);animation:ti .35s ease;min-width:240px}
 @keyframes ti{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
 @keyframes to2{to{opacity:0;transform:translateX(-30px)}}
 
-/* الأنماط الجديدة المضافة */
-.tabs{display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--brd);padding-bottom:8px}
-.tab-btn{background:transparent;border:none;color:var(--txtm);font-family:var(--fa);font-size:.9rem;font-weight:700;cursor:pointer;padding:8px 16px;border-radius:var(--r) var(--r) 0 0;transition:.2s}
-.tab-btn.active{color:var(--acc);border-bottom:2px solid var(--acc);background:rgba(0,255,65,.05)}
-.modal-bg{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px)}
+.modal-bg{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px)}
 .modal{background:var(--bg2);border:1px solid var(--acc2);border-radius:var(--r);padding:30px;width:90%;max-width:400px;box-shadow:0 0 30px rgba(0,255,65,.1)}
 .modal h2{text-align:center;color:var(--acc);font-family:var(--fl);margin-bottom:20px;font-size:1.2rem}
 .fg{margin-bottom:15px}
@@ -84,6 +78,9 @@ header{background:linear-gradient(180deg,rgba(10,14,23,.97),rgba(5,5,8,.95));bor
 .toggle-form{text-align:center;margin-top:15px;font-size:.85rem;color:var(--txtm);cursor:pointer}
 .toggle-form span{color:var(--acc);font-weight:700}
 .admin-badge{background:rgba(255,215,0,.15);color:#ffd700;border:1px solid #ffd700;padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:700;margin-right:10px}
+.tabs{display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--brd);padding-bottom:8px}
+.tab-btn{background:transparent;border:none;color:var(--txtm);font-family:var(--fa);font-size:.9rem;font-weight:700;cursor:pointer;padding:8px 16px;transition:.2s}
+.tab-btn.active{color:var(--acc);border-bottom:2px solid var(--acc);background:rgba(0,255,65,.05)}
 
 @media(max-width:900px){.mn{grid-template-columns:1fr}.ap{position:fixed;top:0;right:-300px;width:280px;height:100vh;z-index:200;transition:.3s}.ap.op2{right:0}.mt{display:flex!important}.hi{display:none}}
 .mt{display:none;position:fixed;bottom:20px;left:20px;z-index:150;width:48px;height:48px;border-radius:50%;background:var(--acc);color:#000;border:none;font-size:1.2rem;cursor:pointer;box-shadow:0 4px 16px rgba(0,255,65,.3);align-items:center;justify-content:center}
@@ -92,10 +89,9 @@ header{background:linear-gradient(180deg,rgba(10,14,23,.97),rgba(5,5,8,.95));bor
 <body>
 <canvas id="mc"></canvas>
 
-<!-- نافذة التسجيل/الدخول -->
 <div class="modal-bg" id="authModal">
   <div class="modal">
-    <h2 id="authTitle">تسجيل الدخول</h2>
+    <h2 id="authTitle">تسجيل الدخول - طوكيو 52</h2>
     <div id="loginForm">
       <div class="fg"><label>البريد الإلكتروني</label><input type="email" id="loginEmail"></div>
       <div class="fg"><label>كلمة المرور</label><input type="password" id="loginPass"></div>
@@ -126,7 +122,6 @@ header{background:linear-gradient(180deg,rgba(10,14,23,.97),rgba(5,5,8,.95));bor
   </div>
 </header>
 
-<!-- شريط التحكم (يظهر للمدير فقط) -->
 <div class="ctrl" id="adminCtrl">
   <button class="btn bs" onclick="startScan()"><i class="fas fa-play"></i> تشغيل</button>
   <button class="btn bx" onclick="stopScan()"><i class="fas fa-stop"></i> إيقاف</button>
@@ -170,9 +165,18 @@ header{background:linear-gradient(180deg,rgba(10,14,23,.97),rgba(5,5,8,.95));bor
 <button class="mt" onclick="document.getElementById('apanel').classList.toggle('op2')"><i class="fas fa-list"></i></button>
 
 <script>
-var API = ''; // سيتم ربطه بالسيرفر
+var API = ''; // يأخذ الرابط تلقائياً من نفس الدومين
 var ADMIN_EMAIL = 'x52anasx@gmail.com';
 var currentUser = null;
+
+// ═══ نظام التنبيهات (Toast) ═══
+function toast(msg) {
+  var c = document.getElementById('tc'), t = document.createElement('div');
+  t.className = 'tt';
+  t.innerHTML = '<span style="color:var(--txtb)">' + msg + '</span>';
+  c.appendChild(t);
+  setTimeout(function() { t.style.animation = 'to2 .3s ease forwards'; setTimeout(function() { t.remove(); }, 300); }, 3500);
+}
 
 // ═══ نظام المصداقية ═══
 function toggleAuth() {
@@ -189,11 +193,27 @@ function toggleAuth() {
 function login() {
   var email = document.getElementById('loginEmail').value;
   var pass = document.getElementById('loginPass').value;
-  if(!email || !pass) return toast('الرجاء إدخال البيانات');
-  // محاكاة للواجهة (الربط الفعلي سيكون مع قاعدة بيانات البوت)
-  currentUser = {email: email, role: email === ADMIN_EMAIL ? 'admin' : 'user'};
-  localStorage.setItem('tokyo52user', JSON.stringify(currentUser));
-  initUI();
+  if(!email || !pass) { toast('الرجاء إدخال البيانات'); return; }
+  
+  toast('جاري التحقق...');
+  
+  fetch(API + '/login', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({email: email, password: pass})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if(data.success) {
+      currentUser = {email: data.email, role: data.role, fname: data.fname};
+      localStorage.setItem('tokyo52user', JSON.stringify(currentUser));
+      initUI();
+      toast('مرحباً بك، ' + data.fname);
+    } else {
+      toast(data.message || 'خطأ في تسجيل الدخول');
+    }
+  })
+  .catch(err => { toast('خطأ في الاتصال بالسيرفر'); console.error(err); });
 }
 
 function register() {
@@ -201,9 +221,25 @@ function register() {
   var pass = document.getElementById('regPass').value;
   var fname = document.getElementById('regFname').value;
   var lname = document.getElementById('regLname').value;
-  if(!email || !pass || !fname || !lname) return toast('الرجاء إكمال البيانات');
-  currentUser = {email: email, role: 'pending'}; // بانتظار موافقة المدير
-  toast('تم إرسال الطلب، بانتظار موافقة المدير');
+  if(!email || !pass || !fname || !lname) { toast('الرجاء إكمال البيانات'); return; }
+  
+  toast('جاري إرسال الطلب...');
+  
+  fetch(API + '/register', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({email: email, password: pass, fname: fname, lname: lname})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if(data.success) {
+      toast(data.message);
+      toggleAuth();
+    } else {
+      toast(data.message || 'خطأ في التسجيل');
+    }
+  })
+  .catch(err => { toast('خطأ في الاتصال'); console.error(err); });
 }
 
 function logout() {
@@ -215,7 +251,7 @@ function logout() {
 
 function initUI() {
   if(!currentUser) return;
-  if(currentUser.role === 'pending') return toast('حسابك قيد المراجعة');
+  if(currentUser.role === 'pending') { toast('حسابك قيد المراجعة'); return; }
   
   document.getElementById('authModal').style.display = 'none';
   document.getElementById('mainApp').style.display = 'flex';
@@ -229,24 +265,11 @@ function initUI() {
   }
 }
 
-// التحقق عند فتح الصفحة
-window.onload = function() {
-  var saved = localStorage.getItem('tokyo52user');
-  if(saved) {
-    currentUser = JSON.parse(saved);
-    initUI();
-  }
-  buildA();
-  startMatrix();
-  setInterval(() => document.getElementById('clk').textContent = new Date().toLocaleTimeString('ar-EG', {hour12: false}), 1000);
-};
-
 // ═══ التبويبات ═══
 function switchTab(tab) {
   var btns = document.querySelectorAll('.tab-btn');
   btns.forEach(b => b.classList.remove('active'));
   event.target.closest('.tab-btn').classList.add('active');
-  
   document.getElementById('liveTab').style.display = tab === 'live' ? 'block' : 'none';
   document.getElementById('lstTab').style.display = tab === 'lst' ? 'block' : 'none';
 }
@@ -256,10 +279,10 @@ var S = {conn:false, scanning:false, at:false, sigs:{}, lstSigs:[], sel:{}, real
 
 // ═══ قاموس الأصول ═══
 var AD = {
-  currencies:{l:'العملات OTC',i:'fa-coins',it:[{id:'EURUSD_otc',n:'EUR/USD'},{id:'GBPUSD_otc',n:'GBP/USD'},{id:'USDJPY_otc',n:'USD/JPY'},{id:'AUDUSD_otc',n:'AUD/USD'},{id:'USDMXN_otc',n:'USD/MXN'},{id:'USDZAR_otc',n:'USD/ZAR'}]},
-  commodities:{l:'السلع OTC',i:'fa-gem',it:[{id:'XAUUSD_otc',n:'Gold'},{id:'XAGUSD_otc',n:'Silver'},{id:'USOIL_otc',n:'USCrude'}]},
-  crypto:{l:'الرقمي OTC',i:'fa-bitcoin-sign',it:[{id:'BTCUSD_otc',n:'Bitcoin'},{id:'ETHUSD_otc',n:'Ethereum'},{id:'SOLUSD_otc',n:'Solana'}]},
-  stocks:{l:'الأسهم OTC',i:'fa-building',it:[{id:'MSFT_otc',n:'Microsoft'},{id:'META_otc',n:'Facebook'},{id:'TSLA_otc',n:'Tesla'}]}
+  currencies:{l:'العملات',i:'fa-coins',it:[{id:'EURUSD_otc',n:'EUR/USD'},{id:'GBPUSD_otc',n:'GBP/USD'},{id:'USDJPY_otc',n:'USD/JPY'},{id:'USDMXN_otc',n:'USD/MXN'}]},
+  commodities:{l:'السلع',i:'fa-gem',it:[{id:'XAUUSD_otc',n:'Gold'},{id:'XAGUSD_otc',n:'Silver'}]},
+  crypto:{l:'الرقمي',i:'fa-bitcoin-sign',it:[{id:'BTCUSD_otc',n:'Bitcoin'},{id:'ETHUSD_otc',n:'Ethereum'}]},
+  stocks:{l:'الأسهم',i:'fa-building',it:[{id:'MSFT_otc',n:'Microsoft'},{id:'META_otc',n:'Facebook'}]}
 };
 
 function buildA() {
@@ -277,7 +300,7 @@ function buildA() {
 }
 
 // ═══ Matrix Rain ═══
-function startMatrix() {
+(function() {
   var c = document.getElementById('mc'), x = c.getContext('2d');
   function r() { c.width = innerWidth; c.height = innerHeight; }
   r(); addEventListener('resize', r);
@@ -296,47 +319,21 @@ function startMatrix() {
     requestAnimationFrame(draw);
   }
   draw();
-}
+})();
 
-// ═══ الأزرار ═══
-function startScan() {
-  S.scanning = true;
-  S.si = setInterval(pollSig, 2000);
-  pollSig();
-  toast('بدأ المسح...');
-}
+// ═══ الساعة ═══
+setInterval(function() { document.getElementById('clk').textContent = new Date().toLocaleTimeString('ar-EG', {hour12: false}); }, 1000);
 
-function stopScan() {
-  S.scanning = false;
-  if (S.si) { clearInterval(S.si); S.si = null; }
-  toast('تم الإيقاف');
-}
-
-function togAT() {
-  S.at = !S.at;
-  document.getElementById('atTg').classList.toggle('on', S.at);
-  toast(S.at ? 'التداول التلقائي: مفعّل' : 'التداول التلقائي: معطّل');
-}
-
-function togAC() {
-  S.real = !S.real;
-  document.getElementById('acTg').classList.toggle('on', S.real);
-  var b = document.getElementById('abdg');
-  b.className = 'ab ' + (S.real ? 'r' : 'd');
-  b.textContent = S.real ? 'REAL' : 'DEMO';
-}
-
-function selAll() {
-  document.querySelectorAll('.ai2 input').forEach(function(cb) { cb.checked = true; S.sel[cb.value] = 1; });
-  toast('تم تحديد الكل');
-}
-
+// ═══ أزرار التحكم ═══
+function startScan() { S.scanning = true; S.si = setInterval(pollSig, 2000); pollSig(); toast('بدأ المسح...'); }
+function stopScan() { S.scanning = false; if (S.si) { clearInterval(S.si); S.si = null; } toast('تم الإيقاف'); }
+function togAT() { S.at = !S.at; document.getElementById('atTg').classList.toggle('on', S.at); toast(S.at ? 'تداول تلقائي: مفعّل' : 'تداول تلقائي: معطّل'); }
+function togAC() { S.real = !S.real; document.getElementById('acTg').classList.toggle('on', S.real); var b = document.getElementById('abdg'); b.className = 'ab ' + (S.real ? 'r' : 'd'); b.textContent = S.real ? 'REAL' : 'DEMO'; }
+function selAll() { document.querySelectorAll('.ai2 input').forEach(function(cb) { cb.checked = true; S.sel[cb.value] = 1; }); toast('تم تحديد الكل'); }
 function clrSig() { S.sigs = {}; render(); }
 
-// ═══ جلب الإشارات (محاكاة مؤقتة للعرض) ═══
+// ═══ جلب الإشارات (محاكاة مؤقتة) ═══
 function pollSig() {
-  // هنا سيتم استبدال الاستدعاء الحقيقي بـ fetch(API+'/signals')
-  // هذا مجرد عرض لتشكل الكروت الجديدة
   if(Math.random() > 0.7) {
      var dummyAsset = ['EURUSD_otc', 'GBPUSD_otc', 'Gold_otc', 'BTCUSD_otc'][Math.floor(Math.random()*4)];
      var dummyDir = Math.random() > 0.5 ? 'call' : 'put';
@@ -346,11 +343,8 @@ function pollSig() {
        expiry_minutes: 2, entry_time: new Date().toLocaleTimeString('ar-EG', {hour12:false}),
        exit_time: new Date(Date.now() + 120000).toLocaleTimeString('ar-EG', {hour12:false}),
        payout: (Math.random()*5+80).toFixed(1), pips_diff: (Math.random()*3).toFixed(2),
-       profit: dummyDir === 'call' ? '+' + (10 * parseFloat((Math.random()*5+80).toFixed(1))/100).toFixed(2) + '$' : '-10$',
-       reasons: ['EMA توافق صاعد', 'RSI ذروة بيع', 'اختراق بولينجر']
+       profit: dummyDir === 'call' ? '+' + (10 * parseFloat((Math.random()*5+80).toFixed(1))/100).toFixed(2) + '$' : '-10$'
      };
-     
-     // إضافة للستات أحياناً
      if(dummyScore > 85) {
        S.lstSigs.push({...S.sigs[dummyAsset], is_lst: true, entry_time: new Date(Date.now() + 300000).toLocaleTimeString('ar-EG', {hour12:false})});
      }
@@ -359,7 +353,7 @@ function pollSig() {
   renderLst();
 }
 
-// ═══ عرض الإشارات المباشرة (محدثة) ═══
+// ═══ عرض الإشارات المباشرة ═══
 function render() {
   var c = document.getElementById('cards');
   var arr = [];
@@ -376,25 +370,7 @@ function render() {
     var ic = s.signal === 'call';
     var cc = s.score >= 80 ? 'hi2' : s.score >= 65 ? 'mi' : 'lo';
     
-    h += '<div class="card ' + (ic ? 'cal' : 'put') + '">
-      <div class="ct">
-        <span class="cn">' + (s.asset_name || s.asset) + '</span>
-        <span class="badge ' + (ic ? 'cal' : 'put') + '">' + (ic ? 'CALL ▲' : 'PUT ▼') + '</span>
-        <span class="cf ' + cc + '">' + s.score + '%</span>
-      </div>
-      <div class="cbar"><div class="cfill ' + cc + '" style="width:' + Math.min(100, s.score) + '%"></div></div>
-      
-      <div class="gr">
-        <div><span class="gl">⏱ وقت الدخول:</span> <span class="gv">' + (s.entry_time || '---') + '</span></div>
-        <div><span class="gl">🏁 وقت الخروج:</span> <span class="gv">' + (s.exit_time || '---') + '</span></div>
-        <div><span class="gl">⏳ المدة:</span> <span class="gv">' + (s.expiry_minutes || 2) + ' د</span></div>
-        <div><span class="gl">💰 العائد:</span> <span class="gv" style="color:var(--acc)">' + (s.payout || '0') + '%</span></div>
-        <div><span class="gl">📊 الفارق:</span> <span class="gv">' + (s.pips_diff || '0') + ' نقطة</span></div>
-        <div><span class="gl">💵 النتيجة:</span> <span class="gv" style="color:' + (s.profit && s.profit.startsWith('+') ? 'var(--acc)' : s.profit && s.profit.startsWith('-') ? 'var(--put)' : 'var(--txtm)') + '">' + (s.profit || 'بانتظار') + '</span></div>
-      </div>
-      
-      <div class="ex only" style="margin-top:8px"><i class="fas fa-robot"></i> ' + (S.at ? 'تم التنفيذ تلقائياً' : 'إشارة فقط') + '</div>
-    </div>';
+    h += '<div class="card ' + (ic ? 'cal' : 'put') + '"><div class="ct"><span class="cn">' + (s.asset_name || s.asset) + '</span><span class="badge ' + (ic ? 'cal' : 'put') + '">' + (ic ? 'CALL ▲' : 'PUT ▼') + '</span><span class="cf ' + cc + '">' + s.score + '%</span></div><div class="cbar"><div class="cfill ' + cc + '" style="width:' + Math.min(100, s.score) + '%"></div></div><div class="gr"><div><span class="gl">⏱ الدخول:</span> <span class="gv">' + (s.entry_time || '---') + '</span></div><div><span class="gl">🏁 الخروج:</span> <span class="gv">' + (s.exit_time || '---') + '</span></div><div><span class="gl">⏳ المدة:</span> <span class="gv">' + (s.expiry_minutes || 2) + ' د</span></div><div><span class="gl">💰 العائد:</span> <span class="gv" style="color:var(--acc)">' + (s.payout || '0') + '%</span></div><div><span class="gl">📊 الفارق:</span> <span class="gv">' + (s.pips_diff || '0') + ' نقطة</span></div><div><span class="gl">💵 النتيجة:</span> <span class="gv">' + (s.profit || 'بانتظار') + '</span></div></div></div>';
   }
   c.innerHTML = h;
 }
@@ -410,28 +386,20 @@ function renderLst() {
   for (var i = 0; i < S.lstSigs.length; i++) {
     var s = S.lstSigs[i];
     var ic = s.signal === 'call';
-    h += '<div class="card" style="border-right:3px solid #17a2b8">
-      <div class="ct">
-        <span class="cn" style="color:#17a2b8"><i class="fas fa-forward"></i> ' + (s.asset_name || s.asset) + '</span>
-        <span class="badge ' + (ic ? 'cal' : 'put') + '">' + (ic ? 'CALL' : 'PUT') + '</span>
-        <span class="cf hi2">' + s.score + '%</span>
-        <span style="font-size:.7rem; color:var(--txtm); margin-right:10px">صفقة مستقبلية</span>
-      </div>
-      <div class="gr">
-         <div><span class="gl">⏱ وقت الدخول المتوقع:</span> <span class="gv" style="color:#17a2b8">' + s.entry_time + '</span></div>
-      </div>
-    </div>';
+    h += '<div class="card" style="border-right:3px solid #17a2b8"><div class="ct"><span class="cn" style="color:#17a2b8"><i class="fas fa-forward"></i> ' + (s.asset_name || s.asset) + '</span><span class="badge ' + (ic ? 'cal' : 'put') + '">' + (ic ? 'CALL' : 'PUT') + '</span><span class="cf hi2">' + s.score + '%</span></div><div class="gr"><div><span class="gl">⏱ وقت الدخول المتوقع:</span> <span class="gv" style="color:#17a2b8">' + s.entry_time + '</span></div></div></div>';
   }
   c.innerHTML = h;
 }
 
-function toast(msg) {
-  var c = document.getElementById('tc'), t = document.createElement('div');
-  t.className = 'tt';
-  t.innerHTML = '<span style="color:var(--txtb)">' + msg + '</span>';
-  c.appendChild(t);
-  setTimeout(function() { t.style.animation = 'to2 .3s ease forwards'; setTimeout(function() { t.remove(); }, 300); }, 3500);
-}
+// ═══ التشغيل الأولي ═══
+window.onload = function() {
+  buildA();
+  var saved = localStorage.getItem('tokyo52user');
+  if(saved) {
+    currentUser = JSON.parse(saved);
+    initUI();
+  }
+};
 </script>
 </body>
 </html>

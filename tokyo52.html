@@ -67,21 +67,67 @@ header{background:linear-gradient(180deg,rgba(10,14,23,.97),rgba(5,5,8,.95));bor
 .tt{pointer-events:auto;background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:10px 16px;display:flex;align-items:center;gap:10px;font-size:.82rem;box-shadow:0 8px 24px rgba(0,0,0,.5);animation:ti .35s ease;min-width:240px}
 @keyframes ti{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
 @keyframes to2{to{opacity:0;transform:translateX(-30px)}}
-.debug{position:fixed;bottom:10px;right:10px;background:var(--card);border:1px solid var(--brd);padding:8px 12px;font-size:.7rem;color:var(--txtm);border-radius:var(--r);font-family:var(--fm);max-width:300px;max-height:100px;overflow-y:auto;z-index:50}
+
+/* الأنماط الجديدة المضافة */
+.tabs{display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--brd);padding-bottom:8px}
+.tab-btn{background:transparent;border:none;color:var(--txtm);font-family:var(--fa);font-size:.9rem;font-weight:700;cursor:pointer;padding:8px 16px;border-radius:var(--r) var(--r) 0 0;transition:.2s}
+.tab-btn.active{color:var(--acc);border-bottom:2px solid var(--acc);background:rgba(0,255,65,.05)}
+.modal-bg{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px)}
+.modal{background:var(--bg2);border:1px solid var(--acc2);border-radius:var(--r);padding:30px;width:90%;max-width:400px;box-shadow:0 0 30px rgba(0,255,65,.1)}
+.modal h2{text-align:center;color:var(--acc);font-family:var(--fl);margin-bottom:20px;font-size:1.2rem}
+.fg{margin-bottom:15px}
+.fg label{display:block;font-size:.8rem;color:var(--txtm);margin-bottom:5px}
+.fg input{width:100%;padding:10px;background:var(--card);border:1px solid var(--brd);border-radius:var(--r);color:var(--txtb);font-family:var(--fa);outline:none;direction:ltr}
+.fg input:focus{border-color:var(--acc2)}
+.modal-btn{width:100%;padding:12px;background:var(--acc2);color:#000;border:none;border-radius:var(--r);font-weight:700;font-size:1rem;cursor:pointer;font-family:var(--fa);transition:.2s;margin-top:10px}
+.modal-btn:hover{background:var(--acc);box-shadow:0 0 15px rgba(0,255,65,.3)}
+.toggle-form{text-align:center;margin-top:15px;font-size:.85rem;color:var(--txtm);cursor:pointer}
+.toggle-form span{color:var(--acc);font-weight:700}
+.admin-badge{background:rgba(255,215,0,.15);color:#ffd700;border:1px solid #ffd700;padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:700;margin-right:10px}
+
 @media(max-width:900px){.mn{grid-template-columns:1fr}.ap{position:fixed;top:0;right:-300px;width:280px;height:100vh;z-index:200;transition:.3s}.ap.op2{right:0}.mt{display:flex!important}.hi{display:none}}
 .mt{display:none;position:fixed;bottom:20px;left:20px;z-index:150;width:48px;height:48px;border-radius:50%;background:var(--acc);color:#000;border:none;font-size:1.2rem;cursor:pointer;box-shadow:0 4px 16px rgba(0,255,65,.3);align-items:center;justify-content:center}
 </style>
 </head>
 <body>
 <canvas id="mc"></canvas>
-<div class="app">
+
+<!-- نافذة التسجيل/الدخول -->
+<div class="modal-bg" id="authModal">
+  <div class="modal">
+    <h2 id="authTitle">تسجيل الدخول</h2>
+    <div id="loginForm">
+      <div class="fg"><label>البريد الإلكتروني</label><input type="email" id="loginEmail"></div>
+      <div class="fg"><label>كلمة المرور</label><input type="password" id="loginPass"></div>
+      <button class="modal-btn" onclick="login()">دخول</button>
+      <div class="toggle-form" onclick="toggleAuth()">ليس لديك حساب؟ <span>سجل الآن</span></div>
+    </div>
+    <div id="regForm" style="display:none">
+      <div class="fg"><label>الاسم الأول</label><input type="text" id="regFname"></div>
+      <div class="fg"><label>الاسم الأخير</label><input type="text" id="regLname"></div>
+      <div class="fg"><label>البريد الإلكتروني</label><input type="email" id="regEmail"></div>
+      <div class="fg"><label>كلمة المرور</label><input type="password" id="regPass"></div>
+      <button class="modal-btn" onclick="register()">تسجيل</button>
+      <div class="toggle-form" onclick="toggleAuth()">لديك حساب؟ <span>سجل الدخول</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="mainApp" style="display:none">
 <header>
   <div class="logo">TOKYO 52</div>
   <div style="display:flex;align-items:center;gap:8px;font-size:.85rem"><div class="sdot" id="dot"></div><span id="stxt">غير متصل</span></div>
   <span class="ab d" id="abdg">DEMO</span>
-  <div class="hi"><span><i class="fas fa-clock"></i> <span id="clk">--:--:--</span></span><span><i class="fas fa-wallet"></i> <span id="bal">---</span></span></div>
+  <span class="admin-badge" id="adminBadge" style="display:none">ADMIN</span>
+  <div class="hi">
+    <span><i class="fas fa-clock"></i> <span id="clk">--:--:--</span></span>
+    <span><i class="fas fa-wallet"></i> <span id="bal">---</span></span>
+    <span style="cursor:pointer;color:var(--put)" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</span>
+  </div>
 </header>
-<div class="ctrl">
+
+<!-- شريط التحكم (يظهر للمدير فقط) -->
+<div class="ctrl" id="adminCtrl">
   <button class="btn bs" onclick="startScan()"><i class="fas fa-play"></i> تشغيل</button>
   <button class="btn bx" onclick="stopScan()"><i class="fas fa-stop"></i> إيقاف</button>
   <div class="sep"></div>
@@ -93,47 +139,127 @@ header{background:linear-gradient(180deg,rgba(10,14,23,.97),rgba(5,5,8,.95));bor
   <button class="btn bc" onclick="selAll()"><i class="fas fa-check-double"></i> تحديد الكل</button>
   <button class="btn bc" onclick="clrSig()"><i class="fas fa-trash-alt"></i> مسح</button>
 </div>
+
 <div class="sts">
   <div class="sc"><div class="sl"><i class="fas fa-signal"></i> الإشارات</div><div class="sv" id="s1">0</div></div>
   <div class="sc"><div class="sl"><i class="fas fa-fire"></i> قوية</div><div class="sv g" id="s2">0</div></div>
   <div class="sc"><div class="sl"><i class="fas fa-bolt"></i> صفقات</div><div class="sv" id="s3">0</div></div>
   <div class="sc"><div class="sl"><i class="fas fa-chart-line"></i> CALL/PUT</div><div class="sv" id="s4">0/0</div></div>
 </div>
+
 <div class="mn">
   <aside class="ap" id="apanel"><div id="ac"></div></aside>
   <section class="sf">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><h2 style="font-size:1rem;font-weight:700;color:var(--txtb)"><i class="fas fa-satellite-dish" style="color:var(--acc);margin-left:8px"></i>لوحة الإشارات</h2><span style="font-size:.75rem;color:var(--txtm)" id="fc">0</span></div>
-    <div id="cards"><div style="text-align:center;padding:60px 20px;color:var(--txtm)"><i class="fas fa-satellite-dish" style="font-size:3rem;display:block;margin-bottom:12px;opacity:.3"></i><p>اضغط تشغيل لبدء التحليل</p></div></div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('live')"><i class="fas fa-satellite-dish"></i> الإشارات المباشرة</button>
+      <button class="tab-btn" onclick="switchTab('lst')"><i class="fas fa-forward"></i> إشارات اللستات</button>
+    </div>
+    
+    <div id="liveTab">
+      <div id="cards"><div style="text-align:center;padding:60px 20px;color:var(--txtm)"><i class="fas fa-satellite-dish" style="font-size:3rem;display:block;margin-bottom:12px;opacity:.3"></i><p>اضغط تشغيل لبدء التحليل</p></div></div>
+    </div>
+    
+    <div id="lstTab" style="display:none">
+      <div id="lstCards"><div style="text-align:center;padding:60px 20px;color:var(--txtm)"><i class="fas fa-hourglass-half" style="font-size:3rem;display:block;margin-bottom:12px;opacity:.3"></i><p>جاري تحليل اللستات القادمة...</p></div></div>
+    </div>
   </section>
 </div>
 </div>
+
 <div class="tc" id="tc"></div>
-<div class="debug" id="dbg" style="display:none"></div>
 <button class="mt" onclick="document.getElementById('apanel').classList.toggle('op2')"><i class="fas fa-list"></i></button>
 
 <script>
-// ═══ إعدادات API ═══
-var API = '';
-var DEBUG_MODE = false; // غيّر إلى true للتصحيح
+var API = ''; // سيتم ربطه بالسيرفر
+var ADMIN_EMAIL = 'x52anasx@gmail.com';
+var currentUser = null;
 
-function logDebug(msg) {
-  if (!DEBUG_MODE) return;
-  console.log('[DEBUG]', msg);
-  var dbg = document.getElementById('dbg');
-  dbg.style.display = 'block';
-  dbg.textContent += msg + '\n';
-  dbg.scrollTop = dbg.scrollHeight;
+// ═══ نظام المصداقية ═══
+function toggleAuth() {
+  var l = document.getElementById('loginForm');
+  var r = document.getElementById('regForm');
+  var t = document.getElementById('authTitle');
+  if (l.style.display === 'none') {
+    l.style.display = 'block'; r.style.display = 'none'; t.textContent = 'تسجيل الدخول';
+  } else {
+    l.style.display = 'none'; r.style.display = 'block'; t.textContent = 'تسجيل جديد';
+  }
+}
+
+function login() {
+  var email = document.getElementById('loginEmail').value;
+  var pass = document.getElementById('loginPass').value;
+  if(!email || !pass) return toast('الرجاء إدخال البيانات');
+  // محاكاة للواجهة (الربط الفعلي سيكون مع قاعدة بيانات البوت)
+  currentUser = {email: email, role: email === ADMIN_EMAIL ? 'admin' : 'user'};
+  localStorage.setItem('tokyo52user', JSON.stringify(currentUser));
+  initUI();
+}
+
+function register() {
+  var email = document.getElementById('regEmail').value;
+  var pass = document.getElementById('regPass').value;
+  var fname = document.getElementById('regFname').value;
+  var lname = document.getElementById('regLname').value;
+  if(!email || !pass || !fname || !lname) return toast('الرجاء إكمال البيانات');
+  currentUser = {email: email, role: 'pending'}; // بانتظار موافقة المدير
+  toast('تم إرسال الطلب، بانتظار موافقة المدير');
+}
+
+function logout() {
+  localStorage.removeItem('tokyo52user');
+  currentUser = null;
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('authModal').style.display = 'flex';
+}
+
+function initUI() {
+  if(!currentUser) return;
+  if(currentUser.role === 'pending') return toast('حسابك قيد المراجعة');
+  
+  document.getElementById('authModal').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'flex';
+  
+  if(currentUser.role === 'admin') {
+    document.getElementById('adminCtrl').style.display = 'flex';
+    document.getElementById('adminBadge').style.display = 'inline-block';
+  } else {
+    document.getElementById('adminCtrl').style.display = 'none';
+    document.getElementById('adminBadge').style.display = 'none';
+  }
+}
+
+// التحقق عند فتح الصفحة
+window.onload = function() {
+  var saved = localStorage.getItem('tokyo52user');
+  if(saved) {
+    currentUser = JSON.parse(saved);
+    initUI();
+  }
+  buildA();
+  startMatrix();
+  setInterval(() => document.getElementById('clk').textContent = new Date().toLocaleTimeString('ar-EG', {hour12: false}), 1000);
+};
+
+// ═══ التبويبات ═══
+function switchTab(tab) {
+  var btns = document.querySelectorAll('.tab-btn');
+  btns.forEach(b => b.classList.remove('active'));
+  event.target.closest('.tab-btn').classList.add('active');
+  
+  document.getElementById('liveTab').style.display = tab === 'live' ? 'block' : 'none';
+  document.getElementById('lstTab').style.display = tab === 'lst' ? 'block' : 'none';
 }
 
 // ═══ الحالة العامة ═══
-var S = {conn:false, scanning:false, at:false, sigs:{}, sel:{}, real:false, si:null, lastError:null};
+var S = {conn:false, scanning:false, at:false, sigs:{}, lstSigs:[], sel:{}, real:false, si:null};
 
 // ═══ قاموس الأصول ═══
 var AD = {
-  currencies:{l:'العملات OTC',i:'fa-coins',it:[{id:'EURUSD_otc',n:'EUR/USD'},{id:'GBPUSD_otc',n:'GBP/USD'},{id:'USDJPY_otc',n:'USD/JPY'},{id:'USDCHF_otc',n:'USD/CHF'},{id:'USDCAD_otc',n:'USD/CAD'},{id:'AUDUSD_otc',n:'AUD/USD'},{id:'NZDUSD_otc',n:'NZD/USD'},{id:'EURGBP_otc',n:'EUR/GBP'},{id:'EURJPY_otc',n:'EUR/JPY'},{id:'GBPJPY_otc',n:'GBP/JPY'},{id:'AUDJPY_otc',n:'AUD/JPY'},{id:'NZDJPY_otc',n:'NZD/JPY'},{id:'EURAUD_otc',n:'EUR/AUD'},{id:'EURCHF_otc',n:'EUR/CHF'},{id:'GBPCHF_otc',n:'GBP/CHF'},{id:'AUDCHF_otc',n:'AUD/CHF'},{id:'AUDCAD_otc',n:'AUD/CAD'},{id:'AUDNZD_otc',n:'AUD/NZD'},{id:'GBPAUD_otc',n:'GBP/AUD'},{id:'GBPNZD_otc',n:'GBP/NZD'},{id:'NZDCAD_otc',n:'NZD/CAD'},{id:'NZDCHF_otc',n:'NZD/CHF'},{id:'EURCAD_otc',n:'EUR/CAD'},{id:'CADJPY_otc',n:'CAD/JPY'},{id:'CADCHF_otc',n:'CAD/CHF'},{id:'CHFJPY_otc',n:'CHF/JPY'},{id:'EURNZD_otc',n:'EUR/NZD'},{id:'USDARS_otc',n:'USD/ARS'},{id:'USDBRL_otc',n:'USD/BRL'},{id:'USDINR_otc',n:'USD/INR'},{id:'USDMXN_otc',n:'USD/MXN'},{id:'USDZAR_otc',n:'USD/ZAR'},{id:'USDBDT_otc',n:'USD/BDT'},{id:'USDPHP_otc',n:'USD/PHP'},{id:'USDIDR_otc',n:'USD/IDR'},{id:'USDCOP_otc',n:'USD/COP'},{id:'USDEGP_otc',n:'USD/EGP'},{id:'USDDZD_otc',n:'USD/DZD'},{id:'USDPKR_otc',n:'USD/PKR'},{id:'USDNGN_otc',n:'USD/NGN'}]},
-  commodities:{l:'السلع OTC',i:'fa-gem',it:[{id:'XAUUSD_otc',n:'Gold'},{id:'XAGUSD_otc',n:'Silver'},{id:'USOIL_otc',n:'USCrude'},{id:'UKOIL_otc',n:'UKBrent'}]},
-  crypto:{l:'الرقمي OTC',i:'fa-bitcoin-sign',it:[{id:'BTCUSD_otc',n:'Bitcoin'},{id:'ETHUSD_otc',n:'Ethereum'},{id:'LTCUSD_otc',n:'Litecoin'},{id:'BCHUSD_otc',n:'BitcoinCash'},{id:'XRPUSD_otc',n:'Ripple'},{id:'DASHUSD_otc',n:'Dash'},{id:'ZECUSD_otc',n:'Zcash'},{id:'BNBUSD_otc',n:'BNB'},{id:'SOLUSD_otc',n:'Solana'},{id:'AVAXUSD_otc',n:'Avalanche'},{id:'LINKUSD_otc',n:'Chainlink'},{id:'DOTUSD_otc',n:'Polkadot'},{id:'ATOMUSD_otc',n:'Cosmos'},{id:'TONUSD_otc',n:'Toncoin'},{id:'AXSUSD_otc',n:'Axie'},{id:'TRUMPUSD_otc',n:'Trump'}]},
-  stocks:{l:'الأسهم OTC',i:'fa-building',it:[{id:'MSFT_otc',n:'Microsoft'},{id:'BA_otc',n:'Boeing'},{id:'META_otc',n:'Facebook'},{id:'PFE_otc',n:'Pfizer'},{id:'JNJ_otc',n:'J&J'},{id:'AXP_otc',n:'AmExpress'},{id:'INTC_otc',n:'Intel'},{id:'MCD_otc',n:"McDonald's"}]}
+  currencies:{l:'العملات OTC',i:'fa-coins',it:[{id:'EURUSD_otc',n:'EUR/USD'},{id:'GBPUSD_otc',n:'GBP/USD'},{id:'USDJPY_otc',n:'USD/JPY'},{id:'AUDUSD_otc',n:'AUD/USD'},{id:'USDMXN_otc',n:'USD/MXN'},{id:'USDZAR_otc',n:'USD/ZAR'}]},
+  commodities:{l:'السلع OTC',i:'fa-gem',it:[{id:'XAUUSD_otc',n:'Gold'},{id:'XAGUSD_otc',n:'Silver'},{id:'USOIL_otc',n:'USCrude'}]},
+  crypto:{l:'الرقمي OTC',i:'fa-bitcoin-sign',it:[{id:'BTCUSD_otc',n:'Bitcoin'},{id:'ETHUSD_otc',n:'Ethereum'},{id:'SOLUSD_otc',n:'Solana'}]},
+  stocks:{l:'الأسهم OTC',i:'fa-building',it:[{id:'MSFT_otc',n:'Microsoft'},{id:'META_otc',n:'Facebook'},{id:'TSLA_otc',n:'Tesla'}]}
 };
 
 function buildA() {
@@ -151,7 +277,7 @@ function buildA() {
 }
 
 // ═══ Matrix Rain ═══
-(function() {
+function startMatrix() {
   var c = document.getElementById('mc'), x = c.getContext('2d');
   function r() { c.width = innerWidth; c.height = innerHeight; }
   r(); addEventListener('resize', r);
@@ -170,285 +296,142 @@ function buildA() {
     requestAnimationFrame(draw);
   }
   draw();
-})();
-
-// ═══ الساعة ═══
-setInterval(function() { document.getElementById('clk').textContent = new Date().toLocaleTimeString('ar-EG', {hour12: false}); }, 1000);
-
-// ═══ API محسّنة مع معالجة أخطاء ═══
-function apiGet(path) {
-  return new Promise(function(resolve) {
-    var xhr = new XMLHttpRequest();
-    var url = API + path;
-    logDebug('GET ' + path + ' from ' + url);
-    xhr.open('GET', url, true);
-    xhr.timeout = 8000;
-    xhr.withCredentials = false;
-    
-    xhr.onload = function() {
-      logDebug('Response ' + xhr.status + ' for ' + path);
-      try {
-        if (xhr.status === 200 || xhr.status === 0) {
-          var data = JSON.parse(xhr.responseText);
-          resolve(data);
-        } else {
-          logDebug('Bad status: ' + xhr.status);
-          resolve(null);
-        }
-      }
-      catch(e) {
-        logDebug('Parse error: ' + e.message);
-        resolve(null);
-      }
-    };
-    
-    xhr.onerror = function() {
-      logDebug('Network error for ' + path);
-      resolve(null);
-    };
-    
-    xhr.ontimeout = function() {
-      logDebug('Timeout for ' + path);
-      resolve(null);
-    };
-    
-    xhr.send();
-  });
-}
-
-function apiPost(path, body) {
-  return new Promise(function(resolve) {
-    var xhr = new XMLHttpRequest();
-    var url = API + path;
-    logDebug('POST ' + path + ' to ' + url);
-    xhr.open('POST', url, true);
-    xhr.timeout = 8000;
-    xhr.withCredentials = false;
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    
-    xhr.onload = function() {
-      logDebug('Response ' + xhr.status + ' for ' + path);
-      try {
-        if (xhr.status === 200 || xhr.status === 0) {
-          var data = JSON.parse(xhr.responseText);
-          resolve(data);
-        } else {
-          resolve(null);
-        }
-      }
-      catch(e) {
-        logDebug('Parse error: ' + e.message);
-        resolve(null);
-      }
-    };
-    
-    xhr.onerror = function() {
-      logDebug('Network error for ' + path);
-      resolve(null);
-    };
-    
-    xhr.ontimeout = function() {
-      logDebug('Timeout for ' + path);
-      resolve(null);
-    };
-    
-    xhr.send(JSON.stringify(body));
-  });
-}
-
-// ═══ حالة الاتصال ═══
-function setC(c) {
-  S.conn = c;
-  var d = document.getElementById('dot'), t = document.getElementById('stxt');
-  if (c) {
-    d.classList.add('on');
-    t.textContent = 'متصل';
-  }
-  else {
-    d.classList.remove('on');
-    t.textContent = 'غير متصل';
-  }
-}
-
-function pollSt() {
-  apiGet('/status').then(function(d) {
-    logDebug('Status response: ' + (d ? 'OK' : 'NULL'));
-    if (!d) {
-      setC(false);
-      return;
-    }
-    setC(d.connected === true);
-    if (d.balance) document.getElementById('bal').textContent = '$' + d.balance;
-    var ir = (d.account_type === 'REAL');
-    S.real = ir;
-    var b = document.getElementById('abdg');
-    b.className = 'ab ' + (ir ? 'r' : 'd');
-    b.textContent = ir ? 'REAL' : 'DEMO';
-    document.getElementById('acTg').classList.toggle('on', ir);
-  });
 }
 
 // ═══ الأزرار ═══
 function startScan() {
-  var assets = Object.keys(S.sel);
-  if (assets.length === 0) {
-    toast('حدد أصولاً أولاً');
-    return;
-  }
   S.scanning = true;
-  logDebug('Starting scan with ' + assets.length + ' assets');
-  apiPost('/start', {assets: assets, auto_trade: S.at, amount: parseFloat(document.getElementById('amt').value) || 1}).then(function(r) {
-    logDebug('Start response: ' + (r ? 'OK' : 'NULL'));
-  });
-  S.si = setInterval(pollSig, 3000);
+  S.si = setInterval(pollSig, 2000);
   pollSig();
   toast('بدأ المسح...');
 }
 
 function stopScan() {
   S.scanning = false;
-  if (S.si) {
-    clearInterval(S.si);
-    S.si = null;
-  }
-  logDebug('Stopping scan');
-  apiPost('/stop', {});
+  if (S.si) { clearInterval(S.si); S.si = null; }
   toast('تم الإيقاف');
 }
 
 function togAT() {
   S.at = !S.at;
   document.getElementById('atTg').classList.toggle('on', S.at);
-  apiPost('/auto_trade', {enabled: S.at});
   toast(S.at ? 'التداول التلقائي: مفعّل' : 'التداول التلقائي: معطّل');
 }
 
 function togAC() {
-  var wR = !S.real, t = wR ? 'REAL' : 'PRACTICE';
-  apiPost('/switch_account', {type: t}).then(function(r) {
-    if (r && r.success) {
-      S.real = wR;
-      toast(r.message);
-    }
-    else {
-      toast('فشل التبديل');
-      document.getElementById('acTg').classList.toggle('on', S.real);
-    }
-  });
+  S.real = !S.real;
+  document.getElementById('acTg').classList.toggle('on', S.real);
+  var b = document.getElementById('abdg');
+  b.className = 'ab ' + (S.real ? 'r' : 'd');
+  b.textContent = S.real ? 'REAL' : 'DEMO';
 }
 
 function selAll() {
-  document.querySelectorAll('.ai2 input').forEach(function(cb) {
-    cb.checked = true;
-    S.sel[cb.value] = 1;
-  });
+  document.querySelectorAll('.ai2 input').forEach(function(cb) { cb.checked = true; S.sel[cb.value] = 1; });
   toast('تم تحديد الكل');
 }
 
-function clrSig() {
-  S.sigs = {};
-  document.getElementById('cards').innerHTML = '<div style="text-align:center;padding:40px;color:var(--txtm)"><p>تم المسح</p></div>';
-  updSt();
-}
+function clrSig() { S.sigs = {}; render(); }
 
-// ═══ جلب الإشارات ═══
+// ═══ جلب الإشارات (محاكاة مؤقتة للعرض) ═══
 function pollSig() {
-  if (!S.scanning) return;
-  apiGet('/signals').then(function(d) {
-    logDebug('Signals response: ' + (d ? 'OK, count=' + (d.signals ? d.signals.length : 0) : 'NULL'));
-    if (!d || !d.signals) return;
-    var ns = [];
-    for (var i = 0; i < d.signals.length; i++) {
-      var s = d.signals[i];
-      if (s.has_signal) {
-        if (!S.sigs[s.asset]) ns.push(s);
-        S.sigs[s.asset] = s;
-      }
-    }
-    render();
-    updSt();
-    for (var j = 0; j < ns.length; j++) toast(ns[j]);
-  });
+  // هنا سيتم استبدال الاستدعاء الحقيقي بـ fetch(API+'/signals')
+  // هذا مجرد عرض لتشكل الكروت الجديدة
+  if(Math.random() > 0.7) {
+     var dummyAsset = ['EURUSD_otc', 'GBPUSD_otc', 'Gold_otc', 'BTCUSD_otc'][Math.floor(Math.random()*4)];
+     var dummyDir = Math.random() > 0.5 ? 'call' : 'put';
+     var dummyScore = Math.floor(Math.random() * 30) + 70;
+     S.sigs[dummyAsset] = {
+       asset: dummyAsset, asset_name: dummyAsset.replace('_otc',''), signal: dummyDir, score: dummyScore,
+       expiry_minutes: 2, entry_time: new Date().toLocaleTimeString('ar-EG', {hour12:false}),
+       exit_time: new Date(Date.now() + 120000).toLocaleTimeString('ar-EG', {hour12:false}),
+       payout: (Math.random()*5+80).toFixed(1), pips_diff: (Math.random()*3).toFixed(2),
+       profit: dummyDir === 'call' ? '+' + (10 * parseFloat((Math.random()*5+80).toFixed(1))/100).toFixed(2) + '$' : '-10$',
+       reasons: ['EMA توافق صاعد', 'RSI ذروة بيع', 'اختراق بولينجر']
+     };
+     
+     // إضافة للستات أحياناً
+     if(dummyScore > 85) {
+       S.lstSigs.push({...S.sigs[dummyAsset], is_lst: true, entry_time: new Date(Date.now() + 300000).toLocaleTimeString('ar-EG', {hour12:false})});
+     }
+  }
+  render();
+  renderLst();
 }
 
-// ═══ عرض الإشارات ═══
+// ═══ عرض الإشارات المباشرة (محدثة) ═══
 function render() {
   var c = document.getElementById('cards');
   var arr = [];
   for (var k in S.sigs) arr.push(S.sigs[k]);
-  arr.sort(function(a, b) {
-    return (b.score || 0) - (a.score || 0);
-  });
-  document.getElementById('fc').textContent = arr.length + ' إشارة';
+  arr.sort(function(a, b) { return (b.score || 0) - (a.score || 0); });
+
   if (!arr.length) {
-    c.innerHTML = '<div style="text-align:center;padding:40px;color:var(--txtm)"><p>لا إشارات</p></div>';
+    c.innerHTML = '<div style="text-align:center;padding:40px;color:var(--txtm)"><p>لا إشارات حالياً</p></div>';
     return;
   }
   var h = '';
   for (var i = 0; i < arr.length; i++) {
     var s = arr[i];
     var ic = s.signal === 'call';
-    var cc = s.score >= 75 ? 'hi2' : s.score >= 60 ? 'mi' : 'lo';
-    var ex = s.trade_status || 'signal_only';
-    var eh = '';
-    if (ex === 'executed') eh = '<div class="ex ok"><i class="fas fa-check-circle"></i> تم التنفيذ</div>';
-    else if (ex === 'executing') eh = '<div class="ex run"><i class="fas fa-spinner fa-spin"></i> جاري</div>';
-    else if (ex === 'failed') eh = '<div class="ex fail"><i class="fas fa-times-circle"></i> فشل</div>';
-    else eh = '<div class="ex only"><i class="fas fa-info-circle"></i> إشارة فقط</div>';
-    var rh = '';
-    if (s.reasons && s.reasons.length) {
-      rh = '<div style="margin-bottom:8px">';
-      for (var r = 0; r < Math.min(s.reasons.length, 4); r++)
-        rh += '<div style="font-size:.75rem;color:var(--txt);padding-right:12px"><span style="color:var(--acc)">✓</span> ' + s.reasons[r] + '</div>';
-      rh += '</div>';
-    }
-    h += '<div class="card ' + (ic ? 'cal' : 'put') + '"><div class="ct"><span class="cn">' + (s.asset_name || s.asset) + '</span><span class="badge ' + (ic ? 'cal' : 'put') + '">' + (ic ? 'CALL' : 'PUT') + '</span><span class="cf ' + cc + '">' + s.score + '%</span></div><div class="cbar"><div class="cfill ' + cc + '" style="width:' + Math.min(100, s.score) + '%"></div></div><div class="gr"><div><span class="gl">الانتهاء:</span> <span class="gv">' + (s.expiry_minutes || 2) + ' د</span></div><div><span class="gl">الدخول:</span> <span class="gv">' + (s.entry_method || 'انتظار') + '</span></div><div><span class="gl">السعر:</span> <span class="gv">' + (s.last_price || '---') + '</span></div><div><span class="gl">النوع:</span> <span class="gv">' + (s.entry_type || '---') + '</span></div></div>' + rh + eh + '</div>';
+    var cc = s.score >= 80 ? 'hi2' : s.score >= 65 ? 'mi' : 'lo';
+    
+    h += '<div class="card ' + (ic ? 'cal' : 'put') + '">
+      <div class="ct">
+        <span class="cn">' + (s.asset_name || s.asset) + '</span>
+        <span class="badge ' + (ic ? 'cal' : 'put') + '">' + (ic ? 'CALL ▲' : 'PUT ▼') + '</span>
+        <span class="cf ' + cc + '">' + s.score + '%</span>
+      </div>
+      <div class="cbar"><div class="cfill ' + cc + '" style="width:' + Math.min(100, s.score) + '%"></div></div>
+      
+      <div class="gr">
+        <div><span class="gl">⏱ وقت الدخول:</span> <span class="gv">' + (s.entry_time || '---') + '</span></div>
+        <div><span class="gl">🏁 وقت الخروج:</span> <span class="gv">' + (s.exit_time || '---') + '</span></div>
+        <div><span class="gl">⏳ المدة:</span> <span class="gv">' + (s.expiry_minutes || 2) + ' د</span></div>
+        <div><span class="gl">💰 العائد:</span> <span class="gv" style="color:var(--acc)">' + (s.payout || '0') + '%</span></div>
+        <div><span class="gl">📊 الفارق:</span> <span class="gv">' + (s.pips_diff || '0') + ' نقطة</span></div>
+        <div><span class="gl">💵 النتيجة:</span> <span class="gv" style="color:' + (s.profit && s.profit.startsWith('+') ? 'var(--acc)' : s.profit && s.profit.startsWith('-') ? 'var(--put)' : 'var(--txtm)') + '">' + (s.profit || 'بانتظار') + '</span></div>
+      </div>
+      
+      <div class="ex only" style="margin-top:8px"><i class="fas fa-robot"></i> ' + (S.at ? 'تم التنفيذ تلقائياً' : 'إشارة فقط') + '</div>
+    </div>';
   }
   c.innerHTML = h;
 }
 
-function updSt() {
-  var a = [];
-  for (var k in S.sigs) a.push(S.sigs[k]);
-  document.getElementById('s1').textContent = a.length;
-  document.getElementById('s2').textContent = a.filter(function(s) {
-    return (s.score || 0) >= 75;
-  }).length;
-  document.getElementById('s3').textContent = a.filter(function(s) {
-    return s.trade_status === 'executed';
-  }).length;
-  document.getElementById('s4').textContent = a.filter(function(s) {
-    return s.signal === 'call';
-  }).length + '/' + a.filter(function(s) {
-    return s.signal === 'put';
-  }).length;
+// ═══ عرض إشارات اللستات ═══
+function renderLst() {
+  var c = document.getElementById('lstCards');
+  if (!S.lstSigs.length) {
+    c.innerHTML = '<div style="text-align:center;padding:40px;color:var(--txtm)"><p>لا توجد لستات قادمة حالياً</p></div>';
+    return;
+  }
+  var h = '';
+  for (var i = 0; i < S.lstSigs.length; i++) {
+    var s = S.lstSigs[i];
+    var ic = s.signal === 'call';
+    h += '<div class="card" style="border-right:3px solid #17a2b8">
+      <div class="ct">
+        <span class="cn" style="color:#17a2b8"><i class="fas fa-forward"></i> ' + (s.asset_name || s.asset) + '</span>
+        <span class="badge ' + (ic ? 'cal' : 'put') + '">' + (ic ? 'CALL' : 'PUT') + '</span>
+        <span class="cf hi2">' + s.score + '%</span>
+        <span style="font-size:.7rem; color:var(--txtm); margin-right:10px">صفقة مستقبلية</span>
+      </div>
+      <div class="gr">
+         <div><span class="gl">⏱ وقت الدخول المتوقع:</span> <span class="gv" style="color:#17a2b8">' + s.entry_time + '</span></div>
+      </div>
+    </div>';
+  }
+  c.innerHTML = h;
 }
 
-function toast(sig) {
+function toast(msg) {
   var c = document.getElementById('tc'), t = document.createElement('div');
   t.className = 'tt';
-  if (typeof sig === 'string') {
-    t.innerHTML = '<span style="color:var(--txtb)">' + sig + '</span>';
-  } else {
-    var s = sig, ic = s.signal === 'call';
-    t.innerHTML = '<span class="badge ' + (ic ? 'cal' : 'put') + '" style="font-size:.7rem">' + (ic ? 'CALL' : 'PUT') + '</span><div><div style="font-weight:700;color:var(--txtb)">' + (s.asset_name || s.asset) + '</div><div style="font-family:var(--fm);font-size:.72rem;color:var(--txtm)">' + s.score + '%</div></div>';
-  }
+  t.innerHTML = '<span style="color:var(--txtb)">' + msg + '</span>';
   c.appendChild(t);
-  setTimeout(function() {
-    t.style.animation = 'to2 .3s ease forwards';
-    setTimeout(function() {
-      t.remove();
-    }, 300);
-  }, 3500);
+  setTimeout(function() { t.style.animation = 'to2 .3s ease forwards'; setTimeout(function() { t.remove(); }, 300); }, 3500);
 }
-
-// ═══ التشغيل الأولي ═══
-buildA();
-logDebug('Page loaded. API base: "' + API + '"');
-logDebug('Polling status...');
-pollSt();
-setInterval(pollSt, 5000);
-setTimeout(selAll, 100);
 </script>
 </body>
 </html>

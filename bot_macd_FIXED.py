@@ -156,32 +156,24 @@ def tokyo_52_engine(clist_m):
 # الدخول الذكي للشموع
 # ==========================================
 async def smart_entry(asset_id, direction, expiry_minutes):
-    timeframe_sec = expiry_minutes * 60
     now = datetime.now()
     seconds_elapsed = now.second + (now.microsecond / 1e6)
-    
     try:
         candles = await client.get_candles(asset_id, 60, 0, 1)
-        if not candles: return False, "لا توجد بيانات شمعة"
-        
+        if not candles: return False, "لا توجد بيانات"
         current_candle = candles[-1]
         open_price = current_candle["open"]
         current_price = current_candle["close"]
         
-        if direction == "call" and current_price < open_price:
-            return True, "enter_now"
-        elif direction == "put" and current_price > open_price:
-            return True, "enter_now"
+        if direction == "call" and current_price < open_price: return True, "enter_now"
+        elif direction == "put" and current_price > open_price: return True, "enter_now"
             
         seconds_to_wait = 60 - seconds_elapsed
         if seconds_to_wait > 5:
             await asyncio.sleep(seconds_to_wait)
             return True, "enter_new_candle"
-        else:
-            return False, "candle_ending_skip"
-            
-    except Exception as e:
-        return False, str(e)
+        else: return False, "candle_ending_skip"
+    except Exception as e: return False, str(e)
 
 # ==========================================
 # سيرفر الموقع (API)
@@ -230,36 +222,24 @@ class Handler(BaseHTTPRequestHandler):
             password = data.get("password", "")
             user = USERS_DB.get(email)
             if user and user["password"] == password:
-                if not user.get("approved", False):
-                    self.reply({"success": False, "message": "حسابك قيد المراجعة من المدير"})
-                else:
-                    self.reply({"success": True, "role": user["role"], "email": email, "fname": user.get("fname", "")})
-            else:
-                self.reply({"success": False, "message": "البريد الإلكتروني أو كلمة المرور غير صحيحة"})
+                if not user.get("approved", False): self.reply({"success": False, "message": "حسابك قيد المراجعة"})
+                else: self.reply({"success": True, "role": user["role"], "email": email, "fname": user.get("fname", "")})
+            else: self.reply({"success": False, "message": "بيانات الدخول غير صحيحة"})
                 
         elif path == "/register":
             email = data.get("email", "")
-            if email in USERS_DB:
-                self.reply({"success": False, "message": "هذا البريد مسجل بالفعل"})
+            if email in USERS_DB: self.reply({"success": False, "message": "هذا البريد مسجل بالفعل"})
             else:
-                new_user = {
-                    "password": data.get("password"),
-                    "role": "user",
-                    "fname": data.get("fname", ""),
-                    "lname": data.get("lname", ""),
-                    "approved": False
-                }
-                USERS_DB[email] = new_user
+                USERS_DB[email] = {"password": data.get("password"), "role": "user", "fname": data.get("fname", ""), "lname": data.get("lname", ""), "approved": False}
                 PENDING_USERS.append(email)
-                self.reply({"success": True, "message": "تم التسجيل بنجاح، بانتظار موافقة المدير"})
+                self.reply({"success": True, "message": "تم التسجيل، بانتظار موافقة المدير"})
                 
         elif path == "/update_settings":
             if "auto_trade" in data: bot_state["auto_trade"] = data["auto_trade"]
             if "account_type" in data: bot_state["account_type"] = data["account_type"]
             if "selected_assets" in data: bot_state["selected_assets"] = data["selected_assets"]
             self.reply({"status": "success"})
-        else:
-            self.reply({"error": "Not found"}, 404)
+        else: self.reply({"error": "Not found"}, 404)
 
     def reply(self, data, code=200):
         body = json.dumps(data, ensure_ascii=False).encode("utf-8")
@@ -289,10 +269,9 @@ async def bot_loop():
         else:
             bot_state["connected"] = False
             print(f"❌ فشل الاتصال: {reason}")
-            return
     except Exception as e:
-        print(f"❌ خطأ في الاستيراد أو الاتصال: {e}")
-        return
+        bot_state["connected"] = False
+        print(f"❌ خطأ في الاتصال: {e}")
 
     while True:
         try:
@@ -303,53 +282,34 @@ async def bot_loop():
             
             for asset_id in bot_state["selected_assets"]:
                 if global_lock: continue
-                
                 try:
                     candles = await client.get_candles(asset_id, 60, 0, 100)
                     if not candles or len(candles) < 50: continue
                     
                     direction, confidence, expiry, details = tokyo_52_engine(candles)
-                    
                     now = datetime.now()
                     asset_name = next((a["name"] for a in ASSETS if a["id"] == asset_id), asset_id)
                     
                     if direction and confidence >= 70:
-                        signal_data = {
-                            "asset": asset_id, "asset_name": asset_name,
-                            "direction": direction, "confidence": confidence,
-                            "expiry": expiry, "time": now.strftime("%H:%M:%S"),
-                            "status": "new"
+                        signals_db[asset_id] = {
+                            "asset": asset_id, "asset_name": asset_name, "direction": direction, 
+                            "confidence": confidence, "expiry": expiry, "time": now.strftime("%H:%M:%S"), "status": "new"
                         }
-                        signals_db[asset_id] = signal_data
-                        
                         if confidence >= 85:
-                            bot_state["pending_signals"].append({
-                                "asset": asset_name, "direction": direction,
-                                "time": now.strftime("%H:%M"), "confidence": confidence
-                            })
+                            bot_state["pending_signals"].append({"asset": asset_name, "direction": direction, "time": now.strftime("%H:%M"), "confidence": confidence})
                         
                         if bot_state["auto_trade"]:
                             global_lock = True
-                            can_enter, reason_entry = await smart_entry(asset_id, direction, expiry)
-                            
+                            can_enter, _ = await smart_entry(asset_id, direction, expiry)
                             if can_enter:
-                                print(f"🚀 فتح صفقة {direction} على {asset_name}")
-                                try:
-                                    status_trade, trade_id = await client.buy(10, asset_id, direction, expiry*60)
-                                    if status_trade:
-                                        await asyncio.sleep(expiry * 60 + 5)
-                                        bot_state["trades_history"].append({"asset": asset_name, "result": "done"})
+                                try: 
+                                    await client.buy(10, asset_id, direction, expiry*60)
+                                    await asyncio.sleep(expiry * 60 + 5)
                                 except: pass
                             global_lock = False
-                                
-                except Exception as e:
-                    global_lock = False
-                    
+                except: global_lock = False
             await asyncio.sleep(5)
-            
-        except Exception as e:
-            print(f"❌ خطأ عام في الحلقة: {e}")
-            await asyncio.sleep(10)
+        except: await asyncio.sleep(10)
 
 if __name__ == "__main__":
     print("=" * 58)
@@ -359,9 +319,7 @@ if __name__ == "__main__":
     threading.Thread(target=lambda: asyncio.run(bot_loop()), daemon=True).start()
     time.sleep(3)
     
-    # تعديل البورت ليتوافق مع Railway
     port = int(os.environ.get("PORT", 8080))
-    
     try:
         srv = HTTPServer(("0.0.0.0", port), Handler)
         print(f"✅ سيرفر الموقع يعمل على البورت {port}")

@@ -1,18 +1,18 @@
 """
-طوكيو 52 - المحرك الجبار (Tokyo 52 Engine)
-دمج التوافق الثلاثي + العقل الذكي + الدخول الذكي للشموع
+طوكيو 52 - المحرك الجبارة (Tokyo 52 Engine)
+دمج التوافق الثلاثي + العقل الذكي + الدخول الذكي للشموع + نظام المصادقة
 """
-import asyncio, json, time, random, math, os, csv
+import asyncio, json, time, random, math, os, csv, threading
 from datetime import datetime, timedelta
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import numpy as np
 
+# ═══ الإعدادات ═══
 EMAIL    = "x52anasx@gmail.com"
-PASSWORD = "anas775312956" # قمت بتصحيح الباسورد بناءً على رسالتك الأولى
+PASSWORD = "anas775312956"
 
-# الأصول (68 زوج)
+# الأصول
 ASSETS = [
-    # العملات
     {"id":"EURUSD_otc", "name":"EUR/USD", "cat":"forex"}, {"id":"GBPUSD_otc", "name":"GBP/USD", "cat":"forex"},
     {"id":"USDJPY_otc", "name":"USD/JPY", "cat":"forex"}, {"id":"USDCHF_otc", "name":"USD/CHF", "cat":"forex"},
     {"id":"USDCAD_otc", "name":"USD/CAD", "cat":"forex"}, {"id":"AUDUSD_otc", "name":"AUD/USD", "cat":"forex"},
@@ -33,33 +33,40 @@ ASSETS = [
     {"id":"USDIDR_otc", "name":"USD/IDR", "cat":"exotic"}, {"id":"USDCOP_otc", "name":"USD/COP", "cat":"exotic"},
     {"id":"USDEGP_otc", "name":"USD/EGP", "cat":"exotic"}, {"id":"USDDZD_otc", "name":"USD/DZD", "cat":"exotic"},
     {"id":"USDPKR_otc", "name":"USD/PKR", "cat":"exotic"}, {"id":"USDNGN_otc", "name":"USD/NGN", "cat":"exotic"},
-    # السلع
     {"id":"XAUUSD_otc", "name":"Gold", "cat":"commodity"}, {"id":"XAGUSD_otc", "name":"Silver", "cat":"commodity"},
     {"id":"USOIL_otc", "name":"USCrude", "cat":"commodity"}, {"id":"UKOIL_otc", "name":"UKBrent", "cat":"commodity"},
-    # العملات الرقمية
     {"id":"BTCUSD_otc", "name":"Bitcoin", "cat":"crypto"}, {"id":"ETHUSD_otc", "name":"Ethereum", "cat":"crypto"},
-    {"id":"LTCUSD_otc", "name":"Litecoin", "cat":"crypto"}, {"id":"BCHUSD_otc", "name":"BitcoinCash", "cat":"crypto"},
-    {"id":"XRPUSD_otc", "name":"Ripple", "cat":"crypto"}, {"id":"BNBUSD_otc", "name":"BNB", "cat":"crypto"},
-    {"id":"SOLUSD_otc", "name":"Solana", "cat":"crypto"}, {"id":"AVAXUSD_otc", "name":"Avalanche", "cat":"crypto"},
-    # الأسهم
+    {"id":"LTCUSD_otc", "name":"Litecoin", "cat":"crypto"}, {"id":"XRPUSD_otc", "name":"Ripple", "cat":"crypto"},
+    {"id":"BNBUSD_otc", "name":"BNB", "cat":"crypto"}, {"id":"SOLUSD_otc", "name":"Solana", "cat":"crypto"},
     {"id":"MSFT_otc", "name":"Microsoft", "cat":"stock"}, {"id":"BA_otc", "name":"Boeing", "cat":"stock"},
     {"id":"META_otc", "name":"Facebook", "cat":"stock"}, {"id":"PFE_otc", "name":"Pfizer", "cat":"stock"},
-    {"id":"JNJ_otc", "name":"J&J", "cat":"stock"}, {"id":"AXP_otc", "name":"AmExpress", "cat":"stock"},
-    {"id":"INTC_otc", "name":"Intel", "cat":"stock"}, {"id":"MCD_otc", "name":"McDonald's", "cat":"stock"},
+    {"id":"JNJ_otc", "name":"J&J", "cat":"stock"}, {"id":"INTC_otc", "name":"Intel", "cat":"stock"},
 ]
 
 # الحالة العامة للبوت والموقع
 bot_state = {
-    "connected": False, "balance": 0.0, "account_type": "PRACTICE", # أو REAL
-    "auto_trade": False, "selected_assets": [a["id"] for a in ASSETS[:10]], # افتراضي أول 10 أزواج
-    "trades_history": [], "pending_signals": [], "users_requests": []
+    "connected": False, "balance": 0.0, "account_type": "PRACTICE",
+    "auto_trade": False, "selected_assets": [a["id"] for a in ASSETS[:10]],
+    "trades_history": [], "pending_signals": []
 }
 signals_db = {}
 client = None
 global_lock = False
 
+# ═══ قاعدة بيانات المستخدمين والمصادقة ═══
+USERS_DB = {
+    EMAIL: {
+        "password": PASSWORD, 
+        "role": "admin", 
+        "fname": "Anas", 
+        "lname": "X", 
+        "approved": True
+    }
+}
+PENDING_USERS = []
+
 # ==========================================
-# مؤشرات رياضية (مأخوذة من الاستراتيجيات وأفضلها)
+# مؤشرات رياضية
 # ==========================================
 def ema_arr(data, period):
     arr=np.array(data,dtype=float); n=len(arr)
@@ -104,9 +111,8 @@ def calc_stoch(clist, kp=14, sm=3):
 def tokyo_52_engine(clist_m):
     closes_m=[c["close"] for c in clist_m]
     n=len(closes_m)
-    if n < 50: return None, 0, 2, {} # لا يكفي للتحليل
+    if n < 50: return None, 0, 2, {}
 
-    # 1. الترند (EMA 9, 21, 50)
     ef = ema_arr(np.array(closes_m), 9)
     em = ema_arr(np.array(closes_m), 21)
     es = ema_arr(np.array(closes_m), 50)
@@ -118,7 +124,6 @@ def tokyo_52_engine(clist_m):
     elif ef[-1] > em[-1]: trend_score = 1; trend_dir = "call"
     elif ef[-1] < em[-1]: trend_score = 1; trend_dir = "put"
 
-    # 2. الزخم (RSI + Stochastic + MACD)
     rsi = calc_rsi(closes_m)
     sk, sd_v = calc_stoch(clist_m)
     ml, sg, ht = calc_macd(closes_m)
@@ -126,81 +131,60 @@ def tokyo_52_engine(clist_m):
     momentum_score = 0
     momentum_dir = "neutral"
     
-    # RSI
     if rsi < 30: momentum_score += 2; momentum_dir = "call"
     elif rsi > 70: momentum_score += 2; momentum_dir = "put"
     
-    # Stoch
     if sk < 20 and sk > sd_v: momentum_score += 2; momentum_dir = "call"
     elif sk > 80 and sk < sd_v: momentum_score += 2; momentum_dir = "put"
     
-    # MACD Cross
     if ml is not None and len(ml) >= 3:
         if ml[-2] <= sg[-2] and ml[-1] > sg[-1] and ht[-1] > ht[-2]: 
             momentum_score += 3; momentum_dir = "call"
         elif ml[-2] >= sg[-2] and ml[-1] < sg[-1] and ht[-1] < ht[-2]: 
             momentum_score += 3; momentum_dir = "put"
 
-    # 3. التوافق (Confluence)
     if trend_dir == momentum_dir and trend_dir != "neutral" and momentum_score >= 3:
         total_score = trend_score + momentum_score
-        # كلما زاد التوافق، زادت الثقة
         confidence = min(95, 50 + (total_score * 5)) 
-        
-        # تحديد المدة بناءً على قوة الترند
         expiry = 2 if total_score < 8 else 3 if total_score < 11 else 5
-        
         details = {"rsi": rsi, "stoch_k": sk, "trend": trend_dir, "score": total_score}
         return trend_dir, confidence, expiry, details
         
     return None, 0, 2, {}
 
 # ==========================================
-# الدخول الذكي للشموع (شرطك الدقيق)
+# الدخول الذكي للشموع
 # ==========================================
 async def smart_entry(asset_id, direction, expiry_minutes):
-    """
-    يراقب الشمعة الحالية. إذا كان السعر في صالحنا يدخل فوراً، غير ذلك ينتظر الشمعة الجديدة.
-    """
     timeframe_sec = expiry_minutes * 60
     now = datetime.now()
     seconds_elapsed = now.second + (now.microsecond / 1e6)
     
-    # بافتراض أن الشمعة تبدأ مع بداية الدقيقة (للفريمات الصغيرة)
-    candle_open_time = now.replace(second=0, microsecond=0)
-    
     try:
-        # جلب الشمعة الحالية لمعرفة سعر الافتتاح
-        candles = await client.get_candles(asset_id, 60, 0, 1) # جلب آخر دقيقة
+        candles = await client.get_candles(asset_id, 60, 0, 1)
         if not candles: return False, "لا توجد بيانات شمعة"
         
         current_candle = candles[-1]
         open_price = current_candle["open"]
         current_price = current_candle["close"]
         
-        # الشرط الاستثنائي: السعر في صالحنا
         if direction == "call" and current_price < open_price:
-            print(f"⚡ دخول فوري CALL لـ {asset_id}: السعر الحالي {current_price} أقل من الافتتاح {open_price}")
             return True, "enter_now"
-            
         elif direction == "put" and current_price > open_price:
-            print(f"⚡ دخول فوري PUT لـ {asset_id}: السعر الحالي {current_price} أعلى من الافتتاح {open_price}")
             return True, "enter_now"
             
-        # إذا لم يكن السعر في صالحنا، ننتظر نهاية الشمعة الحالية
         seconds_to_wait = 60 - seconds_elapsed
-        if seconds_to_wait > 5: # إذا بقي أكثر من 5 ثواني، ننتظر
-            print(f"⏳ انتظار {seconds_to_wait:.0f} ثانية لنهاية الشمعة لـ {asset_id}")
+        if seconds_to_wait > 5:
             await asyncio.sleep(seconds_to_wait)
             return True, "enter_new_candle"
         else:
-            return False, "candle_ending_skip" # الشمعة شارفت على الانتهاء، سندخل في الدورة القادمة
+            return False, "candle_ending_skip"
             
     except Exception as e:
         return False, str(e)
 
 # ==========================================
-# سيرفر الموقع (API للتحكم من طوكيو 52)
+# سيرفر الموقع (API)
 # ==========================================
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, *a): pass
@@ -213,6 +197,22 @@ class Handler(BaseHTTPRequestHandler):
         
     def do_GET(self):
         path = self.path.split("?")[0]
+        
+        # عرض الموقع الرئيسي
+        if path == "/" or path == "/tokyo52.html":
+            try:
+                script_dir = os.path.dirname(os.path.abspath(__file__))
+                filepath = os.path.join(script_dir, "tokyo52.html")
+                with open(filepath, "rb") as f: content = f.read()
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.cors(); self.send_header("Content-Length", len(content)); self.end_headers()
+                self.wfile.write(content)
+            except Exception as e:
+                self.reply({"error": "HTML file not found: " + str(e)}, 404)
+            return
+            
+        # مسارات API
         if path == "/status": self.reply(bot_state)
         elif path == "/assets": self.reply({"assets": ASSETS})
         elif path == "/signals": self.reply({"signals": list(signals_db.values())})
@@ -225,28 +225,41 @@ class Handler(BaseHTTPRequestHandler):
         post_data = self.rfile.read(content_length).decode('utf-8') if content_length else "{}"
         data = json.loads(post_data)
         
-        if path == "/update_settings":
-            # تحديث إعدادات الموقع
+        if path == "/login":
+            email = data.get("email", "")
+            password = data.get("password", "")
+            user = USERS_DB.get(email)
+            if user and user["password"] == password:
+                if not user.get("approved", False):
+                    self.reply({"success": False, "message": "حسابك قيد المراجعة من المدير"})
+                else:
+                    self.reply({"success": True, "role": user["role"], "email": email, "fname": user.get("fname", "")})
+            else:
+                self.reply({"success": False, "message": "البريد الإلكتروني أو كلمة المرور غير صحيحة"})
+                
+        elif path == "/register":
+            email = data.get("email", "")
+            if email in USERS_DB:
+                self.reply({"success": False, "message": "هذا البريد مسجل بالفعل"})
+            else:
+                new_user = {
+                    "password": data.get("password"),
+                    "role": "user",
+                    "fname": data.get("fname", ""),
+                    "lname": data.get("lname", ""),
+                    "approved": False
+                }
+                USERS_DB[email] = new_user
+                PENDING_USERS.append(email)
+                self.reply({"success": True, "message": "تم التسجيل بنجاح، بانتظار موافقة المدير"})
+                
+        elif path == "/update_settings":
             if "auto_trade" in data: bot_state["auto_trade"] = data["auto_trade"]
-            if "account_type" in data: 
-                bot_state["account_type"] = data["account_type"]
-                asyncio.create_task(self.change_account(data["account_type"]))
+            if "account_type" in data: bot_state["account_type"] = data["account_type"]
             if "selected_assets" in data: bot_state["selected_assets"] = data["selected_assets"]
-            self.reply({"status": "success"})
-            
-        elif path == "/approve_user":
-            # موافقة المدير على المستخدمين
             self.reply({"status": "success"})
         else:
             self.reply({"error": "Not found"}, 404)
-
-    async def change_account(self, acc_type):
-        global client
-        try:
-            if client:
-                await client.change_account(acc_type)
-                bot_state["balance"] = await client.get_balance()
-        except: pass
 
     def reply(self, data, code=200):
         body = json.dumps(data, ensure_ascii=False).encode("utf-8")
@@ -258,7 +271,7 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
 # ==========================================
-# حلقة البوت الرئيسية (التحليل والتداول)
+# حلقة البوت الرئيسية
 # ==========================================
 async def bot_loop():
     global client, global_lock, bot_state
@@ -268,8 +281,10 @@ async def bot_loop():
         status, reason = await client.connect()
         if status:
             bot_state["connected"] = True
-            bot_state["balance"] = await client.get_balance()
-            await client.change_account(bot_state["account_type"])
+            try:
+                bot_state["balance"] = await client.get_balance()
+                await client.change_account(bot_state["account_type"])
+            except: pass
             print("✅ اتصال طوكيو 52 ناجح!")
         else:
             bot_state["connected"] = False
@@ -283,67 +298,54 @@ async def bot_loop():
         try:
             if not bot_state["connected"]: await asyncio.sleep(10); continue
             
-            # تحديث الرصيد
-            bot_state["balance"] = await client.get_balance()
+            try: bot_state["balance"] = await client.get_balance()
+            except: pass
             
-            # فحص الأزواج المختارة فقط من الموقع
             for asset_id in bot_state["selected_assets"]:
-                if global_lock: continue # لا يفتح أكثر من صفقة بنفس اللحظة
+                if global_lock: continue
                 
                 try:
-                    # جلب الشموع
                     candles = await client.get_candles(asset_id, 60, 0, 100)
                     if not candles or len(candles) < 50: continue
                     
-                    # تحليل المحرك الجبارة
                     direction, confidence, expiry, details = tokyo_52_engine(candles)
                     
                     now = datetime.now()
                     asset_name = next((a["name"] for a in ASSETS if a["id"] == asset_id), asset_id)
                     
                     if direction and confidence >= 70:
-                        # تسجيل الإشارة في الموقع (سواء بتداول تلقائي أم لا)
                         signal_data = {
-                            "asset": asset_id, "name": asset_name,
+                            "asset": asset_id, "asset_name": asset_name,
                             "direction": direction, "confidence": confidence,
                             "expiry": expiry, "time": now.strftime("%H:%M:%S"),
                             "status": "new"
                         }
                         signals_db[asset_id] = signal_data
                         
-                        # إضافة إشارات اللستات (Future Signals)
                         if confidence >= 85:
                             bot_state["pending_signals"].append({
                                 "asset": asset_name, "direction": direction,
                                 "time": now.strftime("%H:%M"), "confidence": confidence
                             })
                         
-                        # إذا كان التداول التلقائي مفعلاً من الموقع
                         if bot_state["auto_trade"]:
                             global_lock = True
-                            # الدخول الذكي
                             can_enter, reason_entry = await smart_entry(asset_id, direction, expiry)
                             
                             if can_enter:
-                                print(f"🚀 فتح صفقة {direction} على {asset_name} لمدة {expiry} دقائق")
-                                status_trade, trade_id = await client.buy(10, asset_id, direction, expiry*60)
-                                if status_trade:
-                                    # انتظار انتهاء الصفقة ثم تسجيل النتيجة
-                                    await asyncio.sleep(expiry * 60 + 5)
-                                    # هنا يتم التحقق من النتيجة وتحديث الموقع
-                                    bot_state["trades_history"].append({
-                                        "asset": asset_name, "direction": direction,
-                                        "result": "pending_check", "time": now.strftime("%H:%M:%S")
-                                    })
-                                global_lock = False
-                            else:
-                                global_lock = False
+                                print(f"🚀 فتح صفقة {direction} على {asset_name}")
+                                try:
+                                    status_trade, trade_id = await client.buy(10, asset_id, direction, expiry*60)
+                                    if status_trade:
+                                        await asyncio.sleep(expiry * 60 + 5)
+                                        bot_state["trades_history"].append({"asset": asset_name, "result": "done"})
+                                except: pass
+                            global_lock = False
                                 
                 except Exception as e:
                     global_lock = False
-                    print(f"خطأ في تحليل {asset_id}: {e}")
                     
-            await asyncio.sleep(5) # سرعة دوران البوت لجلب الإشارات
+            await asyncio.sleep(5)
             
         except Exception as e:
             print(f"❌ خطأ عام في الحلقة: {e}")

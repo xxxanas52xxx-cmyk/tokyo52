@@ -1,0 +1,118 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.0-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.0-flash"
+        },
+        "text": "أنت المحلل الفني الفولاذي الخاص بأنس، خبير مطلق في تداول أزواج الـ OTC بناءً على السلوك السعري (Price Action) وسيكولوجية حركة الشموع فقط بدون أي مؤشرات خارجية.\nأمامك صورة شارت صافية. قم بتحليل الشموع بدقة متناهية:\n1- حدد بنية السوق الحالية (قمم وقيعان صاعدة أم هابطة أم منطقة عرضية مخنوقة).\n2- اقرأ زخم وسيكولوجية الشموع الأخيرة (حجم الشموع، طول الذيول، شمعة ابتلاعية، مطرقة، أو رفض ريفجكشن من مستوى دعم/مقاومة خفي).\n3- حدد أقرب منطقة انعكاس قادمة (S/R Level) تتوجه إليها الشموع الآن.\n4- اتخذ قراراً حاسماً وصارماً وحدد فيه بدقة عالية:\n   أ- اتجاه الصفقة (شراء CALL / بيع PUT / انتظار وامتناع).\n   ب- مدة الصفقة المناسبة بناءً على رؤيتك الفنية وحجم الشموع (مثلاً: دقيقة، دقيقتين، 5 دقائق... إلخ).\n   ج- وقت ونقطة الدخول المثالية (مثلاً: فوراً مع افتتاح الشمعة القادمة، أو انتظر التصحيح حتى مستوى معين).\nاجعل ردك مختصراً جداً، قاطعاً، وفي أسطر قصيرة ومباشرة بدون فلسفة زائدة.",
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        -208,
+        -96
+      ],
+      "id": "52791bee-c938-4357-847b-2110aed4ea97",
+      "name": "Analyze an image",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "5vkbQtgf4YofOdTt",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": true
+        }
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -416,
+        -128
+      ],
+      "id": "5b8a93ce-08c3-4f4e-b8b3-83db22d8ecc2",
+      "name": "Telegram Trigger",
+      "webhookId": "d17f5fb4-2e0a-45e5-8227-6b5a94e0b074",
+      "credentials": {
+        "telegramApi": {
+          "id": "dF2dyyL4TVZiN20T",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -32,
+        -32
+      ],
+      "id": "ac81c791-3002-4b87-8527-80330a153fb0",
+      "name": "Send a text message",
+      "webhookId": "1c15b13b-06a0-4081-907f-182ede519ceb",
+      "credentials": {
+        "telegramApi": {
+          "id": "TsTB9UbzlyoHZu7I",
+          "name": "Telegram account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Analyze an image": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Analyze an image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "ff913e1b-0d5b-443d-b531-173340e8d110",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "67c5620a6bdba8c8289e80ab94357a68c9023ebcad2c6ca3f9e1bc709499bf88"
+  },
+  "id": "PdZhZBZDHr1pZFo3",
+  "tags": []
+}
